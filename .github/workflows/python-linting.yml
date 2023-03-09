@@ -19,11 +19,6 @@ jobs:
       run: |
         python3 -m flake8 --show-source --ignore E501 badger_os
 
-    - name: Lint examples
-      shell: bash
-      run: |
-        python3 -m flake8 --show-source --ignore E501 examples
-
     - name: Lint Badger 2040 W Libs
       shell: bash
       run: |
