@@ -1,0 +1,9 @@
+*.py
+examples/*.jpg
+examples/*.py
+images/*.jpg
+images/*.txt
+badges/*.txt
+badges/*.jpg
+books/*.txt
+icons/*.jpg
