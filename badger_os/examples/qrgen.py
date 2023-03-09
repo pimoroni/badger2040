@@ -1,4 +1,4 @@
-import badger2040w
+import badger2040
 import qrcode
 import time
 import os
@@ -15,7 +15,7 @@ try:
     text = open("/qrcodes/qrcode.txt", "r")
 except OSError:
     text = open("/qrcodes/qrcode.txt", "w")
-    text.write("""https://pimoroni.com/badger2040w
+    text.write("""https://pimoroni.com/badger2040
 Badger 2040 W
 * 296x128 1-bit e-ink
 * 2.4GHz wireless
@@ -41,7 +41,7 @@ print(f'There are {TOTAL_CODES} QR Codes available:')
 for codename in CODES:
     print(f'File: {codename}')
 
-display = badger2040w.Badger2040W()
+display = badger2040.Badger2040()
 
 code = qrcode.QRCode()
 
@@ -84,16 +84,16 @@ def draw_qr_file(n):
 
     code.set_text(code_text)
     size, _ = measure_qr_code(128, code)
-    left = top = int((badger2040w.HEIGHT / 2) - (size / 2))
+    left = top = int((badger2040.HEIGHT / 2) - (size / 2))
     draw_qr_code(left, top, 128, code)
 
     left = 128 + 5
 
-    display.text(title_text, left, 20, badger2040w.WIDTH, 2)
+    display.text(title_text, left, 20, badger2040.WIDTH, 2)
 
     top = 40
     for line in detail_text:
-        display.text(line, left, top, badger2040w.WIDTH, 1)
+        display.text(line, left, top, badger2040.WIDTH, 1)
         top += 10
 
     if TOTAL_CODES > 1:
@@ -109,21 +109,21 @@ def draw_qr_file(n):
 
 
 badger_os.state_load("qrcodes", state)
-changed = not badger2040w.woken_by_button()
+changed = not badger2040.woken_by_button()
 
 while True:
     if TOTAL_CODES > 1:
-        if display.pressed(badger2040w.BUTTON_UP):
+        if display.pressed(badger2040.BUTTON_UP):
             if state["current_qr"] > 0:
                 state["current_qr"] -= 1
                 changed = True
 
-        if display.pressed(badger2040w.BUTTON_DOWN):
+        if display.pressed(badger2040.BUTTON_DOWN):
             if state["current_qr"] < TOTAL_CODES - 1:
                 state["current_qr"] += 1
                 changed = True
 
-    if display.pressed(badger2040w.BUTTON_B) or display.pressed(badger2040w.BUTTON_C):
+    if display.pressed(badger2040.BUTTON_B) or display.pressed(badger2040.BUTTON_C):
         display.set_pen(15)
         display.clear()
         badger_os.warning(display, "To add QR codes, connect Badger 2040 W to a PC, load up Thonny, and add files to /qrcodes directory.")

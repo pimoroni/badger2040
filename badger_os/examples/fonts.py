@@ -1,4 +1,4 @@
-import badger2040w
+import badger2040
 import badger_os
 
 # Global Constants
@@ -13,8 +13,8 @@ FONT_NAMES = (
     ("bitmap14_outline", 1, 1)
 )
 
-WIDTH = badger2040w.WIDTH
-HEIGHT = badger2040w.HEIGHT
+WIDTH = badger2040.WIDTH
+HEIGHT = badger2040.HEIGHT
 
 MENU_TEXT_SIZE = 0.5
 MENU_SPACING = 16
@@ -98,23 +98,23 @@ state = {"selected_font": 0}
 badger_os.state_load("fonts", state)
 
 # Create a new Badger and set it to update FAST
-display = badger2040w.Badger2040W()
+display = badger2040.Badger2040()
 display.led(128)
-display.set_update_speed(badger2040w.UPDATE_FAST)
+display.set_update_speed(badger2040.UPDATE_FAST)
 
-changed = not badger2040w.woken_by_button()
+changed = not badger2040.woken_by_button()
 
 # ------------------------------
 #       Main program loop
 # ------------------------------
 
 while True:
-    if display.pressed(badger2040w.BUTTON_UP):
+    if display.pressed(badger2040.BUTTON_UP):
         state["selected_font"] -= 1
         if state["selected_font"] < 0:
             state["selected_font"] = len(FONT_NAMES) - 1
         changed = True
-    if display.pressed(badger2040w.BUTTON_DOWN):
+    if display.pressed(badger2040.BUTTON_DOWN):
         state["selected_font"] += 1
         if state["selected_font"] >= len(FONT_NAMES):
             state["selected_font"] = 0

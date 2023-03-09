@@ -1,8 +1,8 @@
 # This example grabs current weather details from Open Meteo and displays them on Badger 2040 W.
 # Find out more about the Open Meteo API at https://open-meteo.com
 
-import badger2040w as badger2040
-from badger2040w import WIDTH
+import badger2040
+from badger2040 import WIDTH
 import urequests
 import jpegdec
 
@@ -14,7 +14,7 @@ TIMEZONE = "auto"  # determines time zone from lat/long
 URL = "http://api.open-meteo.com/v1/forecast?latitude=" + str(LAT) + "&longitude=" + str(LNG) + "&current_weather=true&timezone=" + TIMEZONE
 
 # Display Setup
-display = badger2040.Badger2040W()
+display = badger2040.Badger2040()
 display.led(128)
 display.set_update_speed(2)
 

@@ -1,10 +1,10 @@
-import badger2040w
-from badger2040w import WIDTH
+import badger2040
+from badger2040 import WIDTH
 
 TEXT_SIZE = 0.45
 LINE_HEIGHT = 20
 
-display = badger2040w.Badger2040W()
+display = badger2040.Badger2040()
 display.led(128)
 display.set_thickness(2)
 

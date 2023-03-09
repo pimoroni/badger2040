@@ -1,11 +1,9 @@
-"""Keep track of app state in persistent flash storage."""
-
 import os
 import gc
 import time
 import json
 import machine
-import badger2040w as badger2040
+import badger2040
 
 
 def get_battery_level():
@@ -149,7 +147,7 @@ def warning(display, message, width=badger2040.WIDTH - 20, height=badger2040.HEI
     print(message)
 
     if display is None:
-        display = badger2040.Badger2040W()
+        display = badger2040.Badger2040()
         display.led(128)
 
     # Draw a light grey background

@@ -1,11 +1,11 @@
 import time
-import badger2040w
+import badger2040
 import badger_os
 import jpegdec
 
 # Global Constants
-WIDTH = badger2040w.WIDTH
-HEIGHT = badger2040w.HEIGHT
+WIDTH = badger2040.WIDTH
+HEIGHT = badger2040.HEIGHT
 
 IMAGE_WIDTH = 104
 
@@ -116,9 +116,9 @@ def draw_badge():
 # ------------------------------
 
 # Create a new Badger and set it to update NORMAL
-display = badger2040w.Badger2040W()
+display = badger2040.Badger2040()
 display.led(128)
-display.set_update_speed(badger2040w.UPDATE_NORMAL)
+display.set_update_speed(badger2040.UPDATE_NORMAL)
 display.set_thickness(2)
 
 jpeg = jpegdec.JPEG(display.display)
@@ -160,7 +160,7 @@ detail2_text = truncatestring(detail2_text, DETAILS_TEXT_SIZE,
 draw_badge()
 
 while True:
-    if display.pressed(badger2040w.BUTTON_A) or display.pressed(badger2040w.BUTTON_B) or display.pressed(badger2040w.BUTTON_C) or display.pressed(badger2040w.BUTTON_UP) or display.pressed(badger2040w.BUTTON_DOWN):
+    if display.pressed(badger2040.BUTTON_A) or display.pressed(badger2040.BUTTON_B) or display.pressed(badger2040.BUTTON_C) or display.pressed(badger2040.BUTTON_UP) or display.pressed(badger2040.BUTTON_DOWN):
         badger_os.warning(display, "To change the text, connect Badger2040 to a PC, load up Thonny, and modify badge.txt")
         time.sleep(4)
 

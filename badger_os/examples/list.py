@@ -1,6 +1,6 @@
 import binascii
 
-import badger2040w
+import badger2040
 import badger_os
 
 # **** Put your list title here *****
@@ -9,8 +9,8 @@ list_file = "checklist.txt"
 
 
 # Global Constantsu
-WIDTH = badger2040w.WIDTH
-HEIGHT = badger2040w.HEIGHT
+WIDTH = badger2040.WIDTH
+HEIGHT = badger2040.HEIGHT
 
 ARROW_THICKNESS = 3
 ARROW_WIDTH = 18
@@ -161,7 +161,7 @@ def draw_checkbox(x, y, size, background, foreground, thickness, tick, padding):
 #        Program setup
 # ------------------------------
 
-changed = not badger2040w.woken_by_button()
+changed = not badger2040.woken_by_button()
 state = {
     "current_item": 0,
 }
@@ -178,14 +178,14 @@ if "items_hash" not in state or state["items_hash"] != items_hash:
 items_per_page = 0
 
 # Create a new Badger and set it to update FAST
-display = badger2040w.Badger2040W()
+display = badger2040.Badger2040()
 display.led(128)
 display.set_font("sans")
 display.set_thickness(2)
 if changed:
-    display.set_update_speed(badger2040w.UPDATE_FAST)
+    display.set_update_speed(badger2040.UPDATE_FAST)
 else:
-    display.set_update_speed(badger2040w.UPDATE_TURBO)
+    display.set_update_speed(badger2040.UPDATE_TURBO)
 
 # Find out what the longest item is
 longest_item = 0
@@ -214,28 +214,28 @@ items_per_page = ((LIST_HEIGHT // ITEM_SPACING) + 1) * list_columns
 
 while True:
     if len(list_items) > 0:
-        if display.pressed(badger2040w.BUTTON_A):
+        if display.pressed(badger2040.BUTTON_A):
             if state["current_item"] > 0:
                 page = state["current_item"] // items_per_page
                 state["current_item"] = max(state["current_item"] - (items_per_page) // list_columns, 0)
                 if page != state["current_item"] // items_per_page:
-                    display.update_speed(badger2040w.UPDATE_FAST)
+                    display.update_speed(badger2040.UPDATE_FAST)
                 changed = True
-        if display.pressed(badger2040w.BUTTON_B):
+        if display.pressed(badger2040.BUTTON_B):
             state["checked"][state["current_item"]] = not state["checked"][state["current_item"]]
             changed = True
-        if display.pressed(badger2040w.BUTTON_C):
+        if display.pressed(badger2040.BUTTON_C):
             if state["current_item"] < len(list_items) - 1:
                 page = state["current_item"] // items_per_page
                 state["current_item"] = min(state["current_item"] + (items_per_page) // list_columns, len(list_items) - 1)
                 if page != state["current_item"] // items_per_page:
-                    display.update_speed(badger2040w.UPDATE_FAST)
+                    display.update_speed(badger2040.UPDATE_FAST)
                 changed = True
-        if display.pressed(badger2040w.BUTTON_UP):
+        if display.pressed(badger2040.BUTTON_UP):
             if state["current_item"] > 0:
                 state["current_item"] -= 1
                 changed = True
-        if display.pressed(badger2040w.BUTTON_DOWN):
+        if display.pressed(badger2040.BUTTON_DOWN):
             if state["current_item"] < len(list_items) - 1:
                 state["current_item"] += 1
                 changed = True
@@ -306,7 +306,7 @@ while True:
             display.text(empty_text, ((LIST_PADDING + LIST_WIDTH) - text_length) // 2, (LIST_HEIGHT // 2) + LIST_START - (ITEM_SPACING // 4), WIDTH, ITEM_TEXT_SIZE)
 
         display.update()
-        display.set_update_speed(badger2040w.UPDATE_TURBO)
+        display.set_update_speed(badger2040.UPDATE_TURBO)
         changed = False
 
     display.halt()

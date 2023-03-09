@@ -1,4 +1,4 @@
-import badger2040w
+import badger2040
 import gc
 import badger_os
 
@@ -8,8 +8,8 @@ text_file = "/books/289-0-wind-in-the-willows-abridged.txt"  # File must be on t
 gc.collect()
 
 # Global Constants
-WIDTH = badger2040w.WIDTH
-HEIGHT = badger2040w.HEIGHT
+WIDTH = badger2040.WIDTH
+HEIGHT = badger2040.HEIGHT
 
 ARROW_THICKNESS = 3
 ARROW_WIDTH = 18
@@ -76,9 +76,9 @@ text_spacing = int(34 * state["text_size"])
 
 
 # Create a new Badger and set it to update FAST
-display = badger2040w.Badger2040W()
+display = badger2040.Badger2040()
 display.led(128)
-display.set_update_speed(badger2040w.UPDATE_FAST)
+display.set_update_speed(badger2040.UPDATE_FAST)
 
 
 # ------------------------------
@@ -190,13 +190,13 @@ else:
 
 while True:
     # Was the next page button pressed?
-    if display.pressed(badger2040w.BUTTON_DOWN):
+    if display.pressed(badger2040.BUTTON_DOWN):
         state["current_page"] += 1
 
         changed = True
 
     # Was the previous page button pressed?
-    if display.pressed(badger2040w.BUTTON_UP):
+    if display.pressed(badger2040.BUTTON_UP):
         if state["current_page"] > 0:
             state["current_page"] -= 1
             if state["current_page"] == 0:
@@ -205,7 +205,7 @@ while True:
                 ebook.seek(state["offsets"][state["current_page"] - 1])  # Retrieve the start position of the last page
             changed = True
 
-    if display.pressed(badger2040w.BUTTON_A):
+    if display.pressed(badger2040.BUTTON_A):
         state["text_size"] += 0.1
         if state["text_size"] > 0.8:
             state["text_size"] = 0.5
@@ -215,7 +215,7 @@ while True:
         state["current_page"] = 0
         changed = True
 
-    if display.pressed(badger2040w.BUTTON_B):
+    if display.pressed(badger2040.BUTTON_B):
         state["font_idx"] += 1
         if (state["font_idx"] >= len(FONTS)):
             state["font_idx"] = 0

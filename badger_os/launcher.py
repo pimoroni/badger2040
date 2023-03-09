@@ -2,7 +2,7 @@ import gc
 import os
 import time
 import math
-import badger2040w as badger2040
+import badger2040
 import badger_os
 import jpegdec
 
@@ -22,7 +22,7 @@ else:
     badger_os.state_launch()
 
 
-display = badger2040.Badger2040W()
+display = badger2040.Badger2040()
 display.set_font("bitmap8")
 display.led(128)
 

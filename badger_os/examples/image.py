@@ -1,8 +1,8 @@
 import os
 import sys
 import time
-import badger2040w
-from badger2040w import HEIGHT, WIDTH
+import badger2040
+from badger2040 import HEIGHT, WIDTH
 import badger_os
 import jpegdec
 
@@ -21,7 +21,7 @@ TOTAL_IMAGES = 0
 
 
 # Turn the act LED on as soon as possible
-display = badger2040w.Badger2040W()
+display = badger2040.Badger2040()
 display.led(128)
 
 jpeg = jpegdec.JPEG(display.display)
@@ -86,22 +86,22 @@ if TOTAL_IMAGES == 0:
 
 badger_os.state_load("image", state)
 
-changed = not badger2040w.woken_by_button()
+changed = not badger2040.woken_by_button()
 
 
 while True:
-    if display.pressed(badger2040w.BUTTON_UP):
+    if display.pressed(badger2040.BUTTON_UP):
         if state["current_image"] > 0:
             state["current_image"] -= 1
             changed = True
-    if display.pressed(badger2040w.BUTTON_DOWN):
+    if display.pressed(badger2040.BUTTON_DOWN):
         if state["current_image"] < TOTAL_IMAGES - 1:
             state["current_image"] += 1
             changed = True
-    if display.pressed(badger2040w.BUTTON_A):
+    if display.pressed(badger2040.BUTTON_A):
         state["show_info"] = not state["show_info"]
         changed = True
-    if display.pressed(badger2040w.BUTTON_B) or display.pressed(badger2040w.BUTTON_C):
+    if display.pressed(badger2040.BUTTON_B) or display.pressed(badger2040.BUTTON_C):
         display.set_pen(15)
         display.clear()
         badger_os.warning(display, "To add images connect Badger2040 to a PC, load up Thonny, and see readme.txt in images/")

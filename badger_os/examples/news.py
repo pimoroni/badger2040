@@ -1,5 +1,5 @@
-import badger2040w as badger2040
-from badger2040w import WIDTH
+import badger2040
+from badger2040 import WIDTH
 import machine
 from urllib import urequest
 import gc
@@ -21,7 +21,7 @@ state = {
 badger_os.state_load("news", state)
 
 # Display Setup
-display = badger2040.Badger2040W()
+display = badger2040.Badger2040()
 display.led(128)
 display.set_update_speed(2)
 

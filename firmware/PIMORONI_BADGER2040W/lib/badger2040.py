@@ -56,6 +56,10 @@ BUTTONS = {
 WAKEUP_MASK = 0
 
 
+def is_wireless():
+    return True
+
+
 def woken_by_button():
     return wakeup.get_gpio_state() & BUTTON_MASK > 0
 
@@ -82,7 +86,7 @@ def system_speed(speed):
         pass
 
 
-class Badger2040W():
+class Badger2040():
     def __init__(self):
         self.display = PicoGraphics(DISPLAY_INKY_PACK)
         self._led = machine.PWM(machine.Pin(LED))

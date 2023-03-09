@@ -1,10 +1,10 @@
 import time
 import machine
 import ntptime
-import badger2040w
+import badger2040
 
 
-display = badger2040w.Badger2040W()
+display = badger2040.Badger2040()
 display.set_update_speed(2)
 display.set_thickness(4)
 

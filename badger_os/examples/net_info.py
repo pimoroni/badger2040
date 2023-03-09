@@ -1,12 +1,12 @@
-import badger2040w as badger2040
-from badger2040w import WIDTH
+import badger2040
+from badger2040 import WIDTH
 import network
 
 TEXT_SIZE = 1
 LINE_HEIGHT = 16
 
 # Display Setup
-display = badger2040.Badger2040W()
+display = badger2040.Badger2040()
 display.led(128)
 
 # Connects to the wireless network. Ensure you have entered your details in WIFI_CONFIG.py :).

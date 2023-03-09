@@ -1,10 +1,10 @@
-import badger2040w
-from badger2040w import WIDTH
+import badger2040
+from badger2040 import WIDTH
 
 TEXT_SIZE = 1
 LINE_HEIGHT = 15
 
-display = badger2040w.Badger2040W()
+display = badger2040.Badger2040()
 display.led(128)
 
 # Clear to white
@@ -34,7 +34,7 @@ y += LINE_HEIGHT
 
 display.text("For more info:", 5, y, WIDTH, TEXT_SIZE)
 y += LINE_HEIGHT
-display.text("https://pimoroni.com/badger2040w", 5, y, WIDTH, TEXT_SIZE)
+display.text("https://pimoroni.com/badger2040", 5, y, WIDTH, TEXT_SIZE)
 
 display.update()
 
