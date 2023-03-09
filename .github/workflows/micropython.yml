@@ -121,12 +121,10 @@ jobs:
       run: |
         git apply "${{env.BOARD_DIR}}/wakeup_gpio.patch"
 
-    # Linux deps
-    - name: Install Compiler & CCache
-      if: runner.os == 'Linux'
-      run: |
-        sudo apt update && sudo apt install ccache gcc-arm-none-eabi
-        python3 -m pip install pillow
+    # Install apt packages via cache
+    - uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: ccache gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi libnewlib-dev libstdc++-arm-none-eabi-newlib
 
     # Build firmware
     - name: Configure MicroPython
