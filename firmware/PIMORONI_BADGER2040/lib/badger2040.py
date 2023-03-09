@@ -128,14 +128,16 @@ class Badger2040():
             pass
 
     def pressed(self, button):
-        return BUTTONS[button].value() == (0 if BUTTON_USER else 1) or pressed_to_wake_get_once(button)
+        return BUTTONS[button].value() == (0 if button == BUTTON_USER else 1) or pressed_to_wake_get_once(button)
 
     def pressed_any(self):
-        for button in BUTTONS[:-1].values():  # Skip BUTTON_USER
+        for pin, button in BUTTONS.items():
+            if pin == BUTTON_USER:
+                if not button.value():
+                    return True
+                continue
             if button.value():
                 return True
-        if not BUTTONS[BUTTON_USER].value():  # BUTTON_USER special case
-            return True
         return False
 
     @micropython.native
