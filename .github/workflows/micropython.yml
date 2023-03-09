@@ -61,9 +61,15 @@ jobs:
           - name: Badger 2040
             shortname: badger2040
             board: PIMORONI_BADGER2040
+            # 0x10000000 + (2*1024*1024) - (1408*1024)
+            dir2uf2_fs_start: 269090816
+            dir2uf2_fs_size: 1441792
           - name: Badger 2040 W
             shortname: badger2040w
             board: PIMORONI_BADGER2040W
+            # 0x10000000 + (2*1024*1024) - (848*1024)
+            dir2uf2_fs_start: 269664256
+            dir2uf2_fs_size: 868352
 
     env:
       RELEASE_FILE: pimoroni-${{matrix.shortname}}-${{github.event.release.tag_name || github.sha}}-micropython.uf2
@@ -147,7 +153,7 @@ jobs:
       shell: bash
       run: |
         python3 -m pip install littlefs-python
-        ./dir2uf2/dir2uf2 --append-to micropython/ports/rp2/build/${{env.RELEASE_FILE}} --manifest ${{env.BADGER_OS_DIR}}/uf2-manifest.txt --filename with-badger-os.uf2 ${{env.BADGER_OS_DIR}}/
+        ./dir2uf2/dir2uf2 --fs-start ${{matrix.dir2uf2_fs_start}} --fs-size ${{matrix.dir2uf2_fs_size}} --append-to micropython/ports/rp2/build/${{env.RELEASE_FILE}} --manifest ${{env.BADGER_OS_DIR}}/uf2-manifest.txt --filename with-badger-os.uf2 ${{env.BADGER_OS_DIR}}/
 
     - name: Store .uf2 as artifact
       uses: actions/upload-artifact@v3
