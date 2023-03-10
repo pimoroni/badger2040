@@ -6,6 +6,10 @@ include_directories(${PIMORONI_PICO_PATH}/micropython)
 list(APPEND CMAKE_MODULE_PATH "${PIMORONI_PICO_PATH}/micropython")
 list(APPEND CMAKE_MODULE_PATH "${PIMORONI_PICO_PATH}/micropython/modules")
 
+# Enable support for string_view (for PicoGraphics)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
 # Essential
 include(pimoroni_i2c/micropython)
 include(pimoroni_bus/micropython)
