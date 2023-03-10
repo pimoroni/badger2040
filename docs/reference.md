@@ -1,6 +1,8 @@
 # Badger 2040 & Badger 2040 W: Reference <!-- omit in toc -->
 
-Badger 2040 W is a Raspberry Pi Pico W powered E Ink badge.
+Badger 2040 W and Badger 2040 are Raspberry Pi Pico W powered E Ink badges.
+
+This function reference should give you a basic understanding of how to programming for them in MicroPython.
 
 - [Summary](#summary)
   - [Differences between Badger 2040 W and Badger 2040](#differences-between-badger-2040-w-and-badger-2040)
@@ -47,6 +49,8 @@ WiFi also eats some system RAM, reducing MicroPython's available RAM from 192K (
 
 Badger 2040 W does not have a "user" button since the BOOTSEL button (which originally doubled as "user") is now aboard the attached Pico W.
 
+Badger 2040 W includes a PCF85063A real-time clock, which can wake Badger up from its power-off state.
+
 ## Getting Started
 
 :info: If you're using a Badger 2040 W you should first populate `WIFI_CONFIG.py` with your WiFi details.
@@ -58,7 +62,7 @@ import badger2040
 badger = badger2040.Badger2040()
 ```
 
-This will create a `Badger2040` class called `badger` that will be used in the rest of the examples going forward.
+This will create a `Badger2040` class instance called `badger` that will be used in the rest of the examples going forward.
 
 ## Constants
 
@@ -224,6 +228,12 @@ On Badger 2040 W the `BUTTON_USER` constant is set to `None`.
 
 ## Waking From Sleep
 
+Turning off Badger 2040 and Badger 2040 W will put them into a low-power mode with - in the case of Badger 2040 W - only the RTC running.
+
+* `turn_off()` - cut system power, on USB this will block until a button or alarm state is raised
+
+There are several ways to wake your Badger back up:
+
 ### Button Presses
 
 When running on battery, pressing a button on Badger 2040 will power the unit on. It will automatically be latched on and `main.py` will be executed.
@@ -237,7 +247,14 @@ There are some useful functions to determine if Badger 2040 has been woken by a 
 
 ### Real-time Clock
 
-Badger 2040 includes a PCF85063a RTC which continues to run from battery when the Badger is off. It can be used to wake the Badger on a schedule.
+Badger 2040 W includes a PCF85063a RTC which continues to run from battery when the Badger is off. It can be used to wake the Badger on a schedule.
+
+The following functions provide a simple API to the RTC features:
+
+* `badger2040.sleep_for(minutes)` - set the RTC alarm for the desired number of minutes and turn off Badger 2040 W.
+* `badger2040.pico_rtc_to_pcf()` - copy the time from the Pico W's onboard RTC to the PCF85063a (useful since Pico W's own RTC is set automatically by Thonny.)
+* `badger2040.pcf_to_pico_rtc()` - copy the PCF85063a time to the Pico W's onboard RTC.
+* `badger2040.woken_by_rtc()` - returns `True` if the RTC alarm was set when the Badger 2040 W powered on.
 
 ## Update Speed
 
@@ -262,4 +279,4 @@ On USB, the system will not run slower than 48MHz, as that is the minimum clock 
 
 It is best to set the clock speed as the first thing in your program, and you must not change it after initializing any drivers for any I2C hardware connected to the Qwiic port.  To allow you to set the speed at the top of your program, this method is on the `badger2040` module, rather than the `badger` instance, although we have made sure that it is safe to call it after creating a `badger` instance.
 
-Note that `SYSTEM_TURBO` overclocks the RP2040 to 250MHz, and applies a small over voltage to ensure this is stable. We've found that every RP2040 we've tested is happy to run at this speed without any issues.
+:info: Note that `SYSTEM_TURBO` overclocks the RP2040 to 250MHz, and applies a small over voltage to ensure this is stable. We've found that every RP2040 we've tested is happy to run at this speed without any issues.
