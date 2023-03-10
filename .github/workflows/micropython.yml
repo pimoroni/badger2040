@@ -8,6 +8,7 @@ on:
 
 env:
   MICROPYTHON_VERSION: 668a7bd28a49980b239fd7666684885382526988
+  PIMORONI_PICO_VERSION: v1.19.17
 
 jobs:
   deps:
@@ -104,6 +105,7 @@ jobs:
     - uses: actions/checkout@v3
       with:
         repository: pimoroni/pimoroni-pico
+        ref: ${{env.PIMORONI_PICO_VERSION}}
         submodules: true
         path: pimoroni-pico
 
