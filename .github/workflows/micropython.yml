@@ -116,13 +116,6 @@ jobs:
         ref: v0.0.1
         path: dir2uf2
 
-    # HACK: Patch Wakeup GPIO features into Pico SDK
-    - name: "HACK: Wakeup GPIO Patch"
-      shell: bash
-      working-directory: micropython/lib/pico-sdk
-      run: |
-        git apply "${{env.BOARD_DIR}}/wakeup_gpio.patch"
-
     # Install apt packages
     - name: Install CCache & Compiler
       shell: bash
