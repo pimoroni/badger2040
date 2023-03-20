@@ -109,7 +109,7 @@ def draw_qr_file(n):
 
 
 badger_os.state_load("qrcodes", state)
-changed = not badger2040.woken_by_button()
+changed = True
 
 while True:
     if TOTAL_CODES > 1:
