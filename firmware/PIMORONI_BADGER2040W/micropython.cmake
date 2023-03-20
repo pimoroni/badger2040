@@ -3,6 +3,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/../pimoroni_pico_import.cmake)
 
 include_directories(${PIMORONI_PICO_PATH}/micropython)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../../")
 list(APPEND CMAKE_MODULE_PATH "${PIMORONI_PICO_PATH}/micropython")
 list(APPEND CMAKE_MODULE_PATH "${PIMORONI_PICO_PATH}/micropython/modules")
 
@@ -29,7 +30,15 @@ include(pcf85063a/micropython)
 
 # Utility
 include(adcfft/micropython)
-include(wakeup/micropython)
+
+# Use our LOCAL wakeup module from firmware/modules/wakeup
+include(firmware/modules/wakeup/micropython)
+target_compile_definitions(usermod_wakeup INTERFACE
+    -DWAKEUP_HAS_RTC=1
+    -DWAKEUP_PIN_MASK=0b10000000000010000000000
+    -DWAKEUP_PIN_DIR=0b10000000000010000000000
+    -DWAKEUP_PIN_VALUE=0b10000000000010000000000
+)
 
 # LEDs & Matrices
 include(plasma/micropython)
