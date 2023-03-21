@@ -112,6 +112,10 @@ badger_os.state_load("qrcodes", state)
 changed = True
 
 while True:
+    # Sometimes a button press or hold will keep the system
+    # powered *through* HALT, so latch the power back on.
+    display.keepalive()
+
     if TOTAL_CODES > 1:
         if display.pressed(badger2040.BUTTON_UP):
             if state["current_qr"] > 0:

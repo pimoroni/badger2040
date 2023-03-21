@@ -51,6 +51,9 @@ BUTTONS = {
 
 WAKEUP_MASK = 0
 
+enable = machine.Pin(ENABLE_3V3, machine.Pin.OUT)
+enable.on()
+
 
 def is_wireless():
     return False
@@ -88,9 +91,12 @@ def system_speed(speed):
         pass
 
 
+def turn_on():
+    enable.on()
+
+
 def turn_off():
     time.sleep(0.05)
-    enable = machine.Pin(ENABLE_3V3, machine.Pin.OUT)
     enable.off()
     # Simulate an idle state on USB power by blocking
     # until a button event
@@ -149,6 +155,9 @@ class Badger2040():
 
     def halt(self):
         turn_off()
+
+    def keepalive(self):
+        turn_on()
 
     def pressed(self, button):
         return BUTTONS[button].value() == (0 if button == BUTTON_USER else 1) or pressed_to_wake_get_once(button)

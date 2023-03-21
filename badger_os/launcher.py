@@ -164,6 +164,10 @@ if exited_to_launcher or not woken_by_button:
 display.set_update_speed(badger2040.UPDATE_FAST)
 
 while True:
+    # Sometimes a button press or hold will keep the system
+    # powered *through* HALT, so latch the power back on.
+    display.keepalive()
+
     if display.pressed(badger2040.BUTTON_A):
         button(badger2040.BUTTON_A)
     if display.pressed(badger2040.BUTTON_B):

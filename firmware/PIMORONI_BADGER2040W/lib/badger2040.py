@@ -57,6 +57,9 @@ rtc = pcf85063a.PCF85063A(i2c)
 i2c.writeto_mem(0x51, 0x00, b'\x00')  # ensure rtc is running (this should be default?)
 rtc.enable_timer_interrupt(False)
 
+enable = machine.Pin(ENABLE_3V3, machine.Pin.OUT)
+enable.on()
+
 
 def is_wireless():
     return True
@@ -92,9 +95,12 @@ def system_speed(speed):
         pass
 
 
+def turn_on():
+    enable.on()
+
+
 def turn_off():
     time.sleep(0.05)
-    enable = machine.Pin(ENABLE_3V3, machine.Pin.OUT)
     enable.off()
     # Simulate an idle state on USB power by blocking
     # until an RTC alarm or button event
@@ -186,6 +192,9 @@ class Badger2040():
 
     def halt(self):
         turn_off()
+
+    def keepalive(self):
+        turn_on()
 
     def pressed(self, button):
         return BUTTONS[button].value() == 1 or pressed_to_wake_get_once(button)

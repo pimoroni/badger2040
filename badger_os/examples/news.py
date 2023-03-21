@@ -176,8 +176,7 @@ def draw_page():
 
 draw_page()
 
-while 1:
-
+while True:
     changed = False
 
     if button_down.value():
