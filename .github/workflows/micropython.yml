@@ -75,6 +75,7 @@ jobs:
     env:
       RELEASE_FILE: pimoroni-${{matrix.shortname}}-${{github.event.release.tag_name || github.sha}}-micropython.uf2
       RELEASE_FILE_WITH_OS: pimoroni-${{matrix.shortname}}-${{github.event.release.tag_name || github.sha}}-micropython-with-badger-os.uf2
+      FIRMWARE_DIR: "$GITHUB_WORKSPACE/badger2040/firmware"
       BOARD_DIR: "$GITHUB_WORKSPACE/badger2040/firmware/${{matrix.board}}"
       BADGER_OS_DIR: "$GITHUB_WORKSPACE/badger2040/badger_os"
 
@@ -115,6 +116,13 @@ jobs:
         repository: gadgetoid/dir2uf2
         ref: v0.0.1
         path: dir2uf2
+
+     # HACK: Patch startup overclock into Pico SDK
+    - name: "HACK: Startup Overclock Patch"
+      shell: bash
+      working-directory: micropython/lib/pico-sdk
+      run: |
+        git apply "${{env.FIRMWARE_DIR}}/startup_overclock.patch"
 
     # Install apt packages
     - name: Install CCache & Compiler
