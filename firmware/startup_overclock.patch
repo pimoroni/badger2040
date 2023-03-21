@@ -1,0 +1,26 @@
+diff --git a/src/rp2_common/pico_standard_link/crt0.S b/src/rp2_common/pico_standard_link/crt0.S
+index d061108..864d31f 100644
+--- a/src/rp2_common/pico_standard_link/crt0.S
++++ b/src/rp2_common/pico_standard_link/crt0.S
+@@ -10,6 +10,8 @@
+ #include "hardware/regs/sio.h"
+ #include "pico/asm_helper.S"
+ #include "pico/binary_info/defs.h"
++#include "hardware/regs/resets.h"
++#include "hardware/regs/rosc.h"
+ 
+ #ifdef NDEBUG
+ #ifndef COLLAPSE_IRQS
+@@ -226,6 +228,12 @@ _reset_handler:
+     cmp r0, #0
+     bne hold_non_core0_in_bootrom
+ 
++    // Increase ROSC frequency to ~48MHz (range 14.4 - 96)
++    // Speeds up memory zero init and preinit phases.
++    ldr r0, =(ROSC_BASE + ROSC_DIV_OFFSET)
++    ldr r1, =0xaa2
++    str r1, [r0]
++
+     // In a NO_FLASH binary, don't perform .data copy, since it's loaded
+     // in-place by the SRAM load. Still need to clear .bss
+ #if !PICO_NO_FLASH
