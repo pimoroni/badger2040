@@ -15,16 +15,28 @@ try:
     text = open("/qrcodes/qrcode.txt", "r")
 except OSError:
     text = open("/qrcodes/qrcode.txt", "w")
-    text.write("""https://pimoroni.com/badger2040
+    if badger2040.is_wireless():
+        text.write("""https://pimoroni.com/badger2040w
 Badger 2040 W
 * 296x128 1-bit e-ink
-* 2.4GHz wireless
+* 2.4GHz wireless & RTC
 * five user buttons
 * user LED
 * 2MB QSPI flash
 
 Scan this code to learn
 more about Badger 2040 W.
+""")
+    else:
+        text.write("""https://pimoroni.com/badger2040
+Badger 2040
+* 296x128 1-bit e-ink
+* five user buttons
+* user LED
+* 2MB QSPI flash
+
+Scan this code to learn
+more about Badger 2040.
 """)
     text.flush()
     text.seek(0)
