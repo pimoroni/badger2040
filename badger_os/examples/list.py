@@ -161,7 +161,7 @@ def draw_checkbox(x, y, size, background, foreground, thickness, tick, padding):
 #        Program setup
 # ------------------------------
 
-changed = not badger2040.woken_by_button()
+changed = True
 state = {
     "current_item": 0,
 }

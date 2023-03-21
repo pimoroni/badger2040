@@ -86,7 +86,7 @@ if TOTAL_IMAGES == 0:
 
 badger_os.state_load("image", state)
 
-changed = not badger2040.woken_by_button()
+changed = True
 
 
 while True:
@@ -98,13 +98,16 @@ while True:
         if state["current_image"] > 0:
             state["current_image"] -= 1
             changed = True
+
     if display.pressed(badger2040.BUTTON_DOWN):
         if state["current_image"] < TOTAL_IMAGES - 1:
             state["current_image"] += 1
             changed = True
+
     if display.pressed(badger2040.BUTTON_A):
         state["show_info"] = not state["show_info"]
         changed = True
+
     if display.pressed(badger2040.BUTTON_B) or display.pressed(badger2040.BUTTON_C):
         display.set_pen(15)
         display.clear()

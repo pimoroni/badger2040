@@ -102,7 +102,7 @@ display = badger2040.Badger2040()
 display.led(128)
 display.set_update_speed(badger2040.UPDATE_FAST)
 
-changed = not badger2040.woken_by_button()
+changed = True
 
 # ------------------------------
 #       Main program loop
@@ -118,6 +118,7 @@ while True:
         if state["selected_font"] < 0:
             state["selected_font"] = len(FONT_NAMES) - 1
         changed = True
+
     if display.pressed(badger2040.BUTTON_DOWN):
         state["selected_font"] += 1
         if state["selected_font"] >= len(FONT_NAMES):
