@@ -39,6 +39,10 @@ target_compile_definitions(usermod_wakeup INTERFACE
     -DWAKEUP_PIN_VALUE=0b10000000000000010000000000
 )
 
+# Note: cppmem is *required* for C++ code to function on MicroPython
+# it redirects `malloc` and `free` calls to MicroPython's heap
+include(cppmem/micropython)
+
 # LEDs & Matrices
 include(plasma/micropython)
 
