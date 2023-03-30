@@ -51,9 +51,16 @@ BUTTONS = {
 
 WAKEUP_MASK = 0
 
+enable = machine.Pin(ENABLE_3V3, machine.Pin.OUT)
+enable.on()
+
 
 def is_wireless():
     return False
+
+
+def woken_by_rtc():
+    return False  # Badger 2040 does not include an RTC
 
 
 def woken_by_button():
@@ -82,6 +89,32 @@ def system_speed(speed):
         machine.freq(SYSTEM_FREQS[speed])
     except IndexError:
         pass
+
+
+def turn_on():
+    enable.on()
+
+
+def turn_off():
+    time.sleep(0.05)
+    enable.off()
+    # Simulate an idle state on USB power by blocking
+    # until a button event
+    while True:
+        for pin, button in BUTTONS.items():
+            if pin == BUTTON_USER:
+                if not button.value():
+                    return
+                continue
+            if button.value():
+                return
+
+
+def sleep_for(minutes=None):
+    raise RuntimeError("Badger 2040 does not include an RTC.")
+
+
+pico_rtc_to_pcf = pcf_to_pico_rtc = sleep_for
 
 
 class Badger2040():
@@ -121,11 +154,10 @@ class Badger2040():
         raise RuntimeError("Thickness not supported in PicoGraphics.")
 
     def halt(self):
-        time.sleep(0.05)
-        enable = machine.Pin(ENABLE_3V3, machine.Pin.OUT)
-        enable.off()
-        while not self.pressed_any():
-            pass
+        turn_off()
+
+    def keepalive(self):
+        turn_on()
 
     def pressed(self, button):
         return BUTTONS[button].value() == (0 if button == BUTTON_USER else 1) or pressed_to_wake_get_once(button)

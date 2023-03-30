@@ -7,7 +7,8 @@ on:
     types: [created]
 
 env:
-  MICROPYTHON_VERSION: f80d040c038c343b0709eba537014fb52bc8115e
+  MICROPYTHON_VERSION: 38e7b842c6bc8122753cbf0845eb141f28fbcb72
+  PIMORONI_PICO_VERSION: v1.19.18
 
 jobs:
   deps:
@@ -74,6 +75,7 @@ jobs:
     env:
       RELEASE_FILE: pimoroni-${{matrix.shortname}}-${{github.event.release.tag_name || github.sha}}-micropython.uf2
       RELEASE_FILE_WITH_OS: pimoroni-${{matrix.shortname}}-${{github.event.release.tag_name || github.sha}}-micropython-with-badger-os.uf2
+      FIRMWARE_DIR: "$GITHUB_WORKSPACE/badger2040/firmware"
       BOARD_DIR: "$GITHUB_WORKSPACE/badger2040/firmware/${{matrix.board}}"
       BADGER_OS_DIR: "$GITHUB_WORKSPACE/badger2040/badger_os"
 
@@ -104,6 +106,7 @@ jobs:
     - uses: actions/checkout@v3
       with:
         repository: pimoroni/pimoroni-pico
+        ref: ${{env.PIMORONI_PICO_VERSION}}
         submodules: true
         path: pimoroni-pico
 
@@ -114,12 +117,12 @@ jobs:
         ref: v0.0.1
         path: dir2uf2
 
-    # HACK: Patch Wakeup GPIO features into Pico SDK
-    - name: "HACK: Wakeup GPIO Patch"
+     # HACK: Patch startup overclock into Pico SDK
+    - name: "HACK: Startup Overclock Patch"
       shell: bash
       working-directory: micropython/lib/pico-sdk
       run: |
-        git apply "${{env.BOARD_DIR}}/wakeup_gpio.patch"
+        git apply "${{env.FIRMWARE_DIR}}/startup_overclock.patch"
 
     # Install apt packages
     - name: Install CCache & Compiler

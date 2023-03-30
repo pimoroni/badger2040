@@ -161,7 +161,7 @@ def draw_checkbox(x, y, size, background, foreground, thickness, tick, padding):
 #        Program setup
 # ------------------------------
 
-changed = not badger2040.woken_by_button()
+changed = True
 state = {
     "current_item": 0,
 }
@@ -213,6 +213,10 @@ items_per_page = ((LIST_HEIGHT // ITEM_SPACING) + 1) * list_columns
 # ------------------------------
 
 while True:
+    # Sometimes a button press or hold will keep the system
+    # powered *through* HALT, so latch the power back on.
+    display.keepalive()
+
     if len(list_items) > 0:
         if display.pressed(badger2040.BUTTON_A):
             if state["current_item"] > 0:

@@ -1,13 +1,9 @@
 import machine
 import micropython
 from picographics import PicoGraphics, DISPLAY_INKY_PACK
-import network
-from network_manager import NetworkManager
-import WIFI_CONFIG
-import uasyncio
 import time
-import gc
 import wakeup
+import pcf85063a
 
 
 BUTTON_DOWN = 11
@@ -30,6 +26,7 @@ UPDATE_MEDIUM = 1
 UPDATE_FAST = 2
 UPDATE_TURBO = 3
 
+RTC_ALARM = 8
 LED = 22
 ENABLE_3V3 = 10
 BUSY = 26
@@ -55,9 +52,21 @@ BUTTONS = {
 
 WAKEUP_MASK = 0
 
+i2c = machine.I2C(0)
+rtc = pcf85063a.PCF85063A(i2c)
+i2c.writeto_mem(0x51, 0x00, b'\x00')  # ensure rtc is running (this should be default?)
+rtc.enable_timer_interrupt(False)
+
+enable = machine.Pin(ENABLE_3V3, machine.Pin.OUT)
+enable.on()
+
 
 def is_wireless():
     return True
+
+
+def woken_by_rtc():
+    return bool(wakeup.get_gpio_state() & (1 << RTC_ALARM))
 
 
 def woken_by_button():
@@ -84,6 +93,65 @@ def system_speed(speed):
         machine.freq(SYSTEM_FREQS[speed])
     except IndexError:
         pass
+
+
+def turn_on():
+    enable.on()
+
+
+def turn_off():
+    time.sleep(0.05)
+    enable.off()
+    # Simulate an idle state on USB power by blocking
+    # until an RTC alarm or button event
+    rtc_alarm = machine.Pin(RTC_ALARM)
+    while True:
+        if rtc_alarm.value():
+            return
+        for button in BUTTONS.values():
+            if button.value():
+                return
+
+
+def pico_rtc_to_pcf():
+    # Set the PCF85063A to the time stored by Pico W's RTC
+    year, month, day, dow, hour, minute, second, _ = machine.RTC().datetime()
+    rtc.datetime((year, month, day, hour, minute, second, dow))
+
+
+def pcf_to_pico_rtc():
+    # Set Pico W's RTC to the time stored by the PCF85063A
+    t = rtc.datetime()
+    # BUG ERRNO 22, EINVAL, when date read from RTC is invalid for the Pico's RTC.
+    try:
+        machine.RTC().datetime((t[0], t[1], t[2], t[6], t[3], t[4], t[5], 0))
+        return True
+    except OSError:
+        return False
+
+
+def sleep_for(minutes):
+    year, month, day, hour, minute, second, dow = rtc.datetime()
+
+    # if the time is very close to the end of the minute, advance to the next minute
+    # this aims to fix the edge case where the board goes to sleep right as the RTC triggers, thus never waking up
+    if second >= 55:
+        minute += 1
+
+    minute += minutes
+
+    while minute >= 60:
+        minute -= 60
+        hour += 1
+
+    if hour >= 24:
+        hour -= 24
+
+    rtc.clear_alarm_flag()
+    rtc.set_alarm(0, minute, hour)
+    rtc.enable_alarm_interrupt(True)
+
+    turn_off()
 
 
 class Badger2040():
@@ -123,11 +191,10 @@ class Badger2040():
         raise RuntimeError("Thickness not supported in PicoGraphics.")
 
     def halt(self):
-        time.sleep(0.05)
-        enable = machine.Pin(ENABLE_3V3, machine.Pin.OUT)
-        enable.off()
-        while not self.pressed_any():
-            pass
+        turn_off()
+
+    def keepalive(self):
+        turn_on()
 
     def pressed(self, button):
         return BUTTONS[button].value() == 1 or pressed_to_wake_get_once(button)
@@ -171,12 +238,19 @@ class Badger2040():
         self.update()
 
     def isconnected(self):
+        import network
         return network.WLAN(network.STA_IF).isconnected()
 
     def ip_address(self):
+        import network
         return network.WLAN(network.STA_IF).ifconfig()[0]
 
     def connect(self):
+        from network_manager import NetworkManager
+        import WIFI_CONFIG
+        import uasyncio
+        import gc
+
         if WIFI_CONFIG.COUNTRY == "":
             raise RuntimeError("You must populate WIFI_CONFIG.py for networking.")
         self.display.set_update_speed(2)

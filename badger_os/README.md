@@ -1,7 +1,9 @@
-# Badger 2040 W MicroPython Examples <!-- omit in toc -->
- 
-- [About Badger 2040 W](#about-badger-2040-w)
-- [Badger 2040 W and PicoGraphics](#badger-2040-w-and-picographics)
+# Badger 2040 MicroPython Examples <!-- omit in toc -->
+
+These MicroPython examples demonstrate a variety of applications and are distributed as a sort of "OS" for Badger 2040.
+
+They should help you get started quickly and give you something to modify for your own requirements.
+
 - [Examples](#examples)
   - [Badge](#badge)
   - [Clock](#clock)
@@ -17,25 +19,6 @@
   - [Weather](#weather)
 - [Other Resources](#other-resources)
 
-
-## About Badger 2040 W
-
-Badger 2040 W is a programmable E Paper/eInk/EPD badge with 2.4GHz wireless connectivity, powered by Raspberry Pi Pico W. It can go into a deep sleep mode between updates to preserve battery.
-
-- :link: [Badger 2040 W store page](https://shop.pimoroni.com/products/badger-2040-w)
-
-Badger 2040 W ships with MicroPython firmware pre-loaded, but you can download the most recent version at the link below (you'll want the  `pimoroni-badger2040w` .uf2). If you download the `-with-examples` file, it will come with examples built in.
-
-- [MicroPython releases](https://github.com/pimoroni/pimoroni-pico/releases)
-- [Installing MicroPython](../../../setting-up-micropython.md)
-
-## Badger 2040 W and PicoGraphics
-
-The easiest way to start displaying cool stuff on Badger is by using our `badger2040w` module (which contains helpful functions for interacting with the board hardware) and our PicoGraphics library (which contains a bunch of functions for drawing on the E Ink display).
-
-- [Badger 2040 W function reference](../../modules/badger2040w/README.md)
-- [PicoGraphics function reference](../../modules/picographics/README.md)
-
 ## Examples
 
 Find out more about how to use these examples in our Learn guide:
@@ -47,40 +30,74 @@ Find out more about how to use these examples in our Learn guide:
 
 Customisable name badge example.
 
+Loads badge details from the `/badges` directory on the device, using a file called `badge.txt` which should contain:
+
+* Company
+* Name
+* Detail 1 title
+* Detail 1 text
+* Detail 2 title
+* Detail 2 text
+* Badge image path
+
+For example:
+
+```txt
+mustelid inc
+H. Badger
+RP2040
+2MB Flash
+E ink
+296x128px
+/badges/badge.jpg
+```
+
+The image should be a 104x128 pixel JPEG. Any colours other than black/white will be dithered.
+
 ### Clock
 [clock.py](examples/clock.py)
 
 Clock example with (optional) NTP synchronization and partial screen updates. 
+
+Press button B to switch the clock into time set mode.
+
+On Badger 2040 this allows you to set the internal RTC, but it will not survive a sleep/wake cycle even with a connected battery.
+
+On Badger 2040 W it will set the external RTC and the time will persist even after sleep/wake.
 
 ### Ebook
 [ebook.py](examples/ebook.py)
 
 View text files on Badger.
 
+Currently reads an abridged copy of "The Wind in the Willows" out of the `/books` directory.
+
 ### Fonts
 [fonts.py](examples/fonts.py)
 
-View all the built in fonts.
+A basic example that lets you preview how all of the built-in fonts will appear on the display.
 
 ### Help
 [help.py](examples/help.py)
 
-How to navigate the launcher.
+Gives instructions on to navigate the launcher.
 
 ### Image
 [image.py](examples/image.py)
 
-Display .jpegs on Badger.
+Display JPEG images. Images are read out of the `/images` directory on device.
+
+Press button B to show/hide the image filename.
 
 ### Info
 [info.py](examples/info.py)
 
-Info about Badger 2040 W.
+Info about Badger 2040.
 
 ### List
 [list.py](examples/list.py)
 
-A checklist to keep track of to-dos or shopping.
+A checklist to keep track of to-dos or shopping. Use A/C and Up/Down to navigate and B to check/uncheck items.
 
 ### Net Info
 [net_info.py](examples/net_info.py)

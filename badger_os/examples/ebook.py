@@ -189,6 +189,10 @@ else:
     state["offsets"] = []
 
 while True:
+    # Sometimes a button press or hold will keep the system
+    # powered *through* HALT, so latch the power back on.
+    display.keepalive()
+
     # Was the next page button pressed?
     if display.pressed(badger2040.BUTTON_DOWN):
         state["current_page"] += 1

@@ -15,16 +15,28 @@ try:
     text = open("/qrcodes/qrcode.txt", "r")
 except OSError:
     text = open("/qrcodes/qrcode.txt", "w")
-    text.write("""https://pimoroni.com/badger2040
+    if badger2040.is_wireless():
+        text.write("""https://pimoroni.com/badger2040w
 Badger 2040 W
 * 296x128 1-bit e-ink
-* 2.4GHz wireless
+* 2.4GHz wireless & RTC
 * five user buttons
 * user LED
 * 2MB QSPI flash
 
 Scan this code to learn
 more about Badger 2040 W.
+""")
+    else:
+        text.write("""https://pimoroni.com/badger2040
+Badger 2040
+* 296x128 1-bit e-ink
+* five user buttons
+* user LED
+* 2MB QSPI flash
+
+Scan this code to learn
+more about Badger 2040.
 """)
     text.flush()
     text.seek(0)
@@ -109,9 +121,13 @@ def draw_qr_file(n):
 
 
 badger_os.state_load("qrcodes", state)
-changed = not badger2040.woken_by_button()
+changed = True
 
 while True:
+    # Sometimes a button press or hold will keep the system
+    # powered *through* HALT, so latch the power back on.
+    display.keepalive()
+
     if TOTAL_CODES > 1:
         if display.pressed(badger2040.BUTTON_UP):
             if state["current_qr"] > 0:

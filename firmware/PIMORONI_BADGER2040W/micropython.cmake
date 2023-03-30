@@ -3,8 +3,13 @@ include(${CMAKE_CURRENT_LIST_DIR}/../pimoroni_pico_import.cmake)
 
 include_directories(${PIMORONI_PICO_PATH}/micropython)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../../")
 list(APPEND CMAKE_MODULE_PATH "${PIMORONI_PICO_PATH}/micropython")
 list(APPEND CMAKE_MODULE_PATH "${PIMORONI_PICO_PATH}/micropython/modules")
+
+# Enable support for string_view (for PicoGraphics)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 # Essential
 include(pimoroni_i2c/micropython)
@@ -25,7 +30,19 @@ include(pcf85063a/micropython)
 
 # Utility
 include(adcfft/micropython)
-include(wakeup/micropython)
+
+# Use our LOCAL wakeup module from firmware/modules/wakeup
+include(firmware/modules/wakeup/micropython)
+target_compile_definitions(usermod_wakeup INTERFACE
+    -DWAKEUP_HAS_RTC=1
+    -DWAKEUP_PIN_MASK=0b10000000000010000000000
+    -DWAKEUP_PIN_DIR=0b10000000000010000000000
+    -DWAKEUP_PIN_VALUE=0b10000000000010000000000
+)
+
+# Note: cppmem is *required* for C++ code to function on MicroPython
+# it redirects `malloc` and `free` calls to MicroPython's heap
+include(cppmem/micropython)
 
 # LEDs & Matrices
 include(plasma/micropython)
@@ -36,5 +53,5 @@ include(servo/micropython)
 include(encoder/micropython)
 include(motor/micropython)
 
-# version.py and pimoroni.py
+# version.py, pimoroni.py and boot.py
 include(modules_py/modules_py)

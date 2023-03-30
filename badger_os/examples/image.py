@@ -1,21 +1,9 @@
 import os
-import sys
-import time
 import badger2040
 from badger2040 import HEIGHT, WIDTH
 import badger_os
 import jpegdec
 
-
-REAMDE = """
-Images must be 296x128 pixel JPEGs
-
-Create a new "images" directory via Thonny, and upload your .jpg files there.
-"""
-
-OVERLAY_BORDER = 40
-OVERLAY_SPACING = 20
-OVERLAY_TEXT_SIZE = 0.5
 
 TOTAL_IMAGES = 0
 
@@ -23,17 +11,10 @@ TOTAL_IMAGES = 0
 # Turn the act LED on as soon as possible
 display = badger2040.Badger2040()
 display.led(128)
+display.set_update_speed(badger2040.UPDATE_NORMAL)
 
 jpeg = jpegdec.JPEG(display.display)
 
-# Try to preload BadgerPunk image
-try:
-    os.mkdir("/images")
-    with open("/images/readme.txt", "w") as f:
-        f.write(REAMDE)
-        f.flush()
-except (OSError, ImportError):
-    pass
 
 # Load images
 try:
@@ -77,42 +58,36 @@ def show_image(n):
 
 
 if TOTAL_IMAGES == 0:
-    display.set_pen(15)
-    display.clear()
-    badger_os.warning(display, "To run this demo, create an /images directory on your device and upload some 1bit 296x128 pixel images.")
-    time.sleep(4.0)
-    sys.exit()
+    raise RuntimeError("To run this demo, create an /images directory on your device and upload some 1bit 296x128 pixel images.")
 
 
 badger_os.state_load("image", state)
 
-changed = not badger2040.woken_by_button()
+changed = True
 
 
 while True:
+    # Sometimes a button press or hold will keep the system
+    # powered *through* HALT, so latch the power back on.
+    display.keepalive()
+
     if display.pressed(badger2040.BUTTON_UP):
         if state["current_image"] > 0:
             state["current_image"] -= 1
             changed = True
+
     if display.pressed(badger2040.BUTTON_DOWN):
         if state["current_image"] < TOTAL_IMAGES - 1:
             state["current_image"] += 1
             changed = True
+
     if display.pressed(badger2040.BUTTON_A):
         state["show_info"] = not state["show_info"]
         changed = True
-    if display.pressed(badger2040.BUTTON_B) or display.pressed(badger2040.BUTTON_C):
-        display.set_pen(15)
-        display.clear()
-        badger_os.warning(display, "To add images connect Badger2040 to a PC, load up Thonny, and see readme.txt in images/")
-        display.update()
-        print(state["current_image"])
-        time.sleep(4)
-        changed = True
 
     if changed:
-        badger_os.state_save("image", state)
         show_image(state["current_image"])
+        badger_os.state_save("image", state)
         changed = False
 
     # Halt the Badger to save power, it will wake up if any of the front buttons are pressed

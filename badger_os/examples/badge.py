@@ -1,7 +1,6 @@
-import time
 import badger2040
-import badger_os
 import jpegdec
+
 
 # Global Constants
 WIDTH = badger2040.WIDTH
@@ -110,6 +109,8 @@ def draw_badge():
     display.text(detail2_title, LEFT_PADDING, HEIGHT - (DETAILS_HEIGHT // 2), WIDTH, DETAILS_TEXT_SIZE)
     display.text(detail2_text, LEFT_PADDING + name_length + DETAIL_SPACING, HEIGHT - (DETAILS_HEIGHT // 2), WIDTH, DETAILS_TEXT_SIZE)
 
+    display.update()
+
 
 # ------------------------------
 #        Program setup
@@ -160,13 +161,9 @@ detail2_text = truncatestring(detail2_text, DETAILS_TEXT_SIZE,
 draw_badge()
 
 while True:
-    if display.pressed(badger2040.BUTTON_A) or display.pressed(badger2040.BUTTON_B) or display.pressed(badger2040.BUTTON_C) or display.pressed(badger2040.BUTTON_UP) or display.pressed(badger2040.BUTTON_DOWN):
-        badger_os.warning(display, "To change the text, connect Badger2040 to a PC, load up Thonny, and modify badge.txt")
-        time.sleep(4)
-
-        draw_badge()
-
-    display.update()
+    # Sometimes a button press or hold will keep the system
+    # powered *through* HALT, so latch the power back on.
+    display.keepalive()
 
     # If on battery, halt the Badger to save power, it will wake up if any of the front buttons are pressed
     display.halt()
