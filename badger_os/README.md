@@ -126,3 +126,4 @@ Here are some cool Badger 2040 W community projects and resources that you might
 - :link: [Send messages to Badger via webform](https://github.com/techcree/Badger2040W/tree/main/webform)
 - :link: [3D printed Badger 2040 W enclosure](https://kaenner.de/badger2040w)
 - :link: [Badger Pixel Client for a Raspberry Pi Pixel Server](https://github.com/penguintutor/badger-pixel-client)
+- :link: [Badger2040 System II](https://github.com/oneearedrabbit/badger-system-ii)
