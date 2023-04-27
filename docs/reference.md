@@ -89,7 +89,7 @@ Below is a list of other constants that have been made available, to help with t
 
 ## Basic Drawing Settings
 
-Since Badger 2040 is based upon PicoGraphics you should read the [PicoGraphics function reference]([../picographics/README.md](https://github.com/pimoroni/pimoroni-pico/blob/main/micropython/modules/picographics/README.md)) for more information about how to draw to the display.
+Since Badger 2040 is based upon PicoGraphics you should read the [PicoGraphics function reference](https://github.com/pimoroni/pimoroni-pico/blob/main/micropython/modules/picographics/README.md) for more information about how to draw to the display.
 
 ### Pen Colour
 
