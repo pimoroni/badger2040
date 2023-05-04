@@ -7,8 +7,8 @@ on:
     types: [created]
 
 env:
-  MICROPYTHON_VERSION: 38e7b842c6bc8122753cbf0845eb141f28fbcb72
-  PIMORONI_PICO_VERSION: v1.19.18
+  MICROPYTHON_VERSION: v1.20.0
+  PIMORONI_PICO_VERSION: v1.20.1
 
 jobs:
   deps:
@@ -117,12 +117,17 @@ jobs:
         ref: v0.0.1
         path: dir2uf2
 
-     # HACK: Patch startup overclock into Pico SDK
+    # HACK: Patch startup overclock into Pico SDK
     - name: "HACK: Startup Overclock Patch"
       shell: bash
       working-directory: micropython/lib/pico-sdk
       run: |
         git apply "${{env.FIRMWARE_DIR}}/startup_overclock.patch"
+
+    - name: "HACK: CMakeLists.txt Disable C++ Exceptions Patch"
+      shell: bash
+      working-directory: micropython
+      run: git apply "${{env.FIRMWARE_DIR}}/micropython_nano_specs.patch"
 
     # Install apt packages
     - name: Install CCache & Compiler
