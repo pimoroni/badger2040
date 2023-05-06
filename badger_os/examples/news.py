@@ -162,7 +162,18 @@ def draw_page():
     display.set_pen(0)
     display.rectangle(0, 0, WIDTH, 20)
     display.set_pen(15)
-    display.text("News", 3, 4)
+
+    # [klotz]
+    if feed:
+        def urlhostname(url):
+            """return hostname of url, without external dependencies"""
+            return url.split('//')[-1].split('/')[0]
+        url = URL[state["feed"]]
+        hostname = urlhostname(url)
+        display.text("News " + hostname, 3, 4)
+    else:
+        display.text("News", 3, 4)
+
     display.text("Page: " + str(state["current_page"] + 1), WIDTH - display.measure_text("Page:  ") - 4, 4)
     display.set_pen(0)
 
@@ -171,7 +182,6 @@ def draw_page():
     # Draw articles from the feed if they're available.
     if feed:
         page = state["current_page"]
-        display.set_pen(0)
         display.text(feed[page]["title"], 2, 30, WIDTH - 130, 2)
         # [klotz]
         code.set_text(feed[page]["link"] or feed[page]["guid"])
