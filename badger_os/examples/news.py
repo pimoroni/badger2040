@@ -95,7 +95,14 @@ def parse_xml_stream(s, accept_tags, group_by, max_items=3):
 
             else:
                 current_tag = read_until(s, b">")
-                tag += [next_char + current_tag.split(b" ")[0]]
+                # [klotz] fix short-form close XML
+                if current_tag[-1:] == b'/':
+                    # <foo />: there's no text content, and don't process attributes, so ignore
+                    # current_tag = next_char + current_tag.split(b" ")[0].split(b"/")[0]
+                    current_tag = None
+                else:
+                    current_tag = next_char + current_tag.split(b" ")[0]
+                    tag += [current_tag]
                 text = b""
                 gc.collect()
 
