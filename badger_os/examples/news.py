@@ -136,7 +136,8 @@ def get_rss(url):
         return output
 
     except OSError as e:
-        print(e)
+        # [klotz] better errors
+        print("error", url, e)
         return False
 
     finally:
