@@ -131,7 +131,8 @@ def draw_qr_code(ox, oy, size, code):
 def get_rss(url):
     try:
         stream = urequest.urlopen(url)
-        output = list(parse_xml_stream(stream, [b"title", b"description", b"guid", b"pubDate"], b"item"))
+        # [klotz] accommodate guid or link
+        output = list(parse_xml_stream(stream, [b"title", b"description", b"guid", b"link", b"pubDate"], b"item"))
         return output
 
     except OSError as e:
@@ -169,7 +170,8 @@ def draw_page():
         page = state["current_page"]
         display.set_pen(0)
         display.text(feed[page]["title"], 2, 30, WIDTH - 130, 2)
-        code.set_text(feed[page]["guid"])
+        # [klotz]
+        code.set_text(feed[page]["link"] or feed[page]["guid"])
         draw_qr_code(WIDTH - 100, 25, 100, code)
 
     else:
