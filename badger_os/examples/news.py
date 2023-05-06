@@ -214,6 +214,7 @@ while True:
     if button_a.value():
         state["feed"] = 0
         state["current_page"] = 0
+        feed = None
         feed = get_rss(URL[state["feed"]])
         badger_os.state_save("news", state)
         changed = True
@@ -221,6 +222,7 @@ while True:
     if button_b.value():
         state["feed"] = 1
         state["current_page"] = 0
+        feed = None
         feed = get_rss(URL[state["feed"]])
         badger_os.state_save("news", state)
         changed = True
@@ -228,6 +230,7 @@ while True:
     if button_c.value():
         state["feed"] = 2
         state["current_page"] = 0
+        feed = None
         feed = get_rss(URL[state["feed"]])
         badger_os.state_save("news", state)
         changed = True
