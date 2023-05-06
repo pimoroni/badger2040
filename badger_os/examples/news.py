@@ -15,7 +15,7 @@ code = qrcode.QRCode()
 
 state = {
     "current_page": 0,
-    "feed": 2
+    "feed": 0
 }
 
 badger_os.state_load("news", state)
