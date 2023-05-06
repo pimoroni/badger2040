@@ -146,7 +146,7 @@ def get_rss(url):
 # Connects to the wireless network. Ensure you have entered your details in WIFI_CONFIG.py :).
 display.connect()
 
-print(state["feed"])
+print(f"feed: {state["feed"]}")
 feed = get_rss(URL[state["feed"]])
 
 
@@ -223,4 +223,5 @@ while True:
         changed = True
 
     if changed:
+        print(f"feed: {state["feed"]} page: {state["current_page"]} url: {URL[state["feed"]]}")
         draw_page()
