@@ -139,6 +139,8 @@ def get_rss(url):
         print(e)
         return False
 
+    finally:
+        stream.close()
 
 # Connects to the wireless network. Ensure you have entered your details in WIFI_CONFIG.py :).
 display.connect()
