@@ -23,7 +23,7 @@ They should help you get started quickly and give you something to modify for yo
 
 Find out more about how to use these examples in our Learn guide:
 
-- [Getting Started with Badger 2040 W](https://learn.pimoroni.com/article/getting-started-with-badger-2040-w)
+- [Getting Started with Badger 2040 & Badger 2040 W ](https://learn.pimoroni.com/article/getting-started-with-badger-2040)
 
 ### Badge
 [badge.py](examples/badge.py)
