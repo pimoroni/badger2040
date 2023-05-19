@@ -146,13 +146,11 @@ def button(pin):
         launch_example(1)
     if pin == badger2040.BUTTON_C:
         launch_example(2)
-    if pin == badger2040.BUTTON_UP:
-        if state["page"] > 0:
-            state["page"] -= 1
+  if pin == badger2040.BUTTON_UP:
+        state["page"] = int(math.fmod(state["page"] - 1, MAX_PAGE))
         render()
     if pin == badger2040.BUTTON_DOWN:
-        if state["page"] < MAX_PAGE - 1:
-            state["page"] += 1
+        state["page"] = int(math.fmod(state["page"] + 1, MAX_PAGE))
         render()
 
 
