@@ -39,6 +39,9 @@ target_compile_definitions(usermod_wakeup INTERFACE
     -DWAKEUP_PIN_VALUE=0b10000000000000010000000000
 )
 
+# Use our LOCAL system_speed module from firmware/modules/system_speed
+include(firmware/modules/system_speed/micropython)
+
 # Note: cppmem is *required* for C++ code to function on MicroPython
 # it redirects `malloc` and `free` calls to MicroPython's heap
 include(cppmem/micropython)
