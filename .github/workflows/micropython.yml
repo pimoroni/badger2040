@@ -7,8 +7,9 @@ on:
     types: [created]
 
 env:
-  MICROPYTHON_VERSION: v1.20.0
-  PIMORONI_PICO_VERSION: v1.20.1
+  MICROPYTHON_VERSION: 856e08b1931b88271816a2f60648f6ff332235b2
+  PIMORONI_PICO_VERSION: v1.20.3
+  WORKFLOW_VERSION: v2
 
 jobs:
   deps:
@@ -20,9 +21,9 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{runner.workspace}}
-        key: workspace-micropython-${{env.MICROPYTHON_VERSION}}
+        key: workspace-micropython-${{env.MICROPYTHON_VERSION}}-${{env.WORKFLOW_VERSION}}
         restore-keys: |
-          workspace-micropython-${{env.MICROPYTHON_VERSION}}
+          workspace-micropython-${{env.MICROPYTHON_VERSION}}-${{env.WORKFLOW_VERSION}}
 
     # Check out MicroPython
     - name: Checkout MicroPython
@@ -34,17 +35,18 @@ jobs:
         submodules: false  # MicroPython submodules are hideously broken
         path: micropython
 
-    - name: Fetch base MicroPython submodules
+    - name: Fetch Pico submodules
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
       working-directory: micropython
-      run: git submodule update --init
-
-    - name: Fetch Pico SDK submodules
-      if: steps.cache.outputs.cache-hit != 'true'
-      shell: bash
-      working-directory: micropython/lib/pico-sdk
-      run: git submodule update --init
+      run: |
+        git submodule update --init lib/pico-sdk
+        git submodule update --init lib/cyw43-driver
+        git submodule update --init lib/lwip
+        git submodule update --init lib/mbedtls
+        git submodule update --init lib/micropython-lib
+        git submodule update --init lib/tinyusb
+        git submodule update --init lib/btstack
 
     - name: Build mpy-cross
       if: steps.cache.outputs.cache-hit != 'true'
@@ -93,9 +95,9 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{runner.workspace}}
-        key: workspace-micropython-${{env.MICROPYTHON_VERSION}}
+        key: workspace-micropython-${{env.MICROPYTHON_VERSION}}-${{env.WORKFLOW_VERSION}}
         restore-keys: |
-          workspace-micropython-${{env.MICROPYTHON_VERSION}}
+          workspace-micropython-${{env.MICROPYTHON_VERSION}}-${{env.WORKFLOW_VERSION}}
 
     - uses: actions/checkout@v3
       with:
