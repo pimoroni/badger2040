@@ -7,28 +7,17 @@ import badger2040
 
 
 def get_battery_level():
-    return 0
-    # Battery measurement
-    vbat_adc = machine.ADC(badger2040.PIN_BATTERY)
-    vref_adc = machine.ADC(badger2040.PIN_1V2_REF)
-    vref_en = machine.Pin(badger2040.PIN_VREF_POWER)
-    vref_en.init(machine.Pin.OUT)
-    vref_en.value(0)
+    from machine import Pin, ADC
 
-    # Enable the onboard voltage reference
-    vref_en.value(1)
+    # Setup pins
+    Pin(25, Pin.OUT, value=1)  # Deselect Wi-Fi module
+    Pin(29, Pin.IN, pull=None)  # Set VSYS ADC pin floating
 
-    # Calculate the logic supply voltage, as will be lower that the usual 3.3V when running off low batteries
-    vdd = 1.24 * (65535 / vref_adc.read_u16())
-    vbat = (
-        (vbat_adc.read_u16() / 65535) * 3 * vdd
-    )  # 3 in this is a gain, not rounding of 3.3V
+    # VSYS measurement
+    vsys_adc = ADC(29)
+    vsys = (vsys_adc.read_u16() / 65535) * 3 * 3.3
 
-    # Disable the onboard voltage reference
-    vref_en.value(0)
-
-    # Convert the voltage to a level to display onscreen
-    return vbat
+    return vsys
 
 
 def get_disk_usage():
