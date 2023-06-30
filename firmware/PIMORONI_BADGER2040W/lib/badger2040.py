@@ -230,6 +230,7 @@ class Badger2040():
                 row >>= 1
 
     def status_handler(self, mode, status, ip):
+        self.display.set_update_speed(2)
         print(mode, status, ip)
         self.display.set_pen(15)
         self.display.clear()
@@ -249,15 +250,17 @@ class Badger2040():
         import network
         return network.WLAN(network.STA_IF).ifconfig()[0]
 
-    def connect(self):
+    def connect(self, **args):
         from network_manager import NetworkManager
         import WIFI_CONFIG
         import uasyncio
         import gc
 
+        status_handler = args.get("status_handler", self.status_handler)
+
         if WIFI_CONFIG.COUNTRY == "":
             raise RuntimeError("You must populate WIFI_CONFIG.py for networking.")
-        self.display.set_update_speed(2)
-        network_manager = NetworkManager(WIFI_CONFIG.COUNTRY, status_handler=self.status_handler)
+
+        network_manager = NetworkManager(WIFI_CONFIG.COUNTRY, status_handler=status_handler)
         uasyncio.get_event_loop().run_until_complete(network_manager.client(WIFI_CONFIG.SSID, WIFI_CONFIG.PSK))
         gc.collect()
