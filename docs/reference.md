@@ -83,6 +83,10 @@ Below is a list of other constants that have been made available, to help with t
 
 ### Activity LED Pin
 
+Badger 2040:
+* `LED` = `25`
+
+Badger 2040 W:
 * `LED` = `22`
 
 # Function Reference
