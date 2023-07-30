@@ -25,7 +25,7 @@ The regular builds just include the firmware, and leave your files alone:
 
 ###  Badger 2040
 
-1. Connect your Badger 2040 W to your computer using a USB A to C cable.
+1. Connect your Badger 2040 to your computer using a USB A to C cable.
 
 2. Reset your device into bootloader mode by holding BOOT/USR and pressing the RST button next to it.
 
@@ -35,7 +35,7 @@ The regular builds just include the firmware, and leave your files alone:
 
 ### Badger 2040 W
 
-1. Connect your Badger 2040 to your computer using a USB A to microB cable.
+1. Connect your Badger 2040 W to your computer using a USB A to microB cable.
 
 2. Reset your device into bootloader mode by holding BOOTSEL (onboard the Pico W) and pressing RESET (next to the qw/st connector). 
 
