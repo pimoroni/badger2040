@@ -27,7 +27,7 @@ Many apps have top level directories for their associated files, these include:
 
 ### Add Your Own
 
-You no longer need to edit `launcher.py` to include your own custom apps, just place them in `examples/app_name.py` and include a corresponding `examples/icon-app_name.py`.
+You no longer need to edit `launcher.py` to include your own custom apps, just place them in `examples/app_name.py` and include a corresponding `examples/icon-app_name.jpg`.
 
 ## Function Changes
 
