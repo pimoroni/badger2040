@@ -3,6 +3,7 @@ import micropython
 from picographics import PicoGraphics, DISPLAY_INKY_PACK
 import time
 import wakeup
+import cppmem
 
 
 BUTTON_DOWN = 11
@@ -53,6 +54,8 @@ WAKEUP_MASK = 0
 
 enable = machine.Pin(ENABLE_3V3, machine.Pin.OUT)
 enable.on()
+
+cppmem.set_mode(cppmem.MICROPYTHON)
 
 
 def is_wireless():
