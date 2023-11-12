@@ -4,6 +4,7 @@ from picographics import PicoGraphics, DISPLAY_INKY_PACK
 import time
 import wakeup
 import pcf85063a
+import cppmem
 
 
 BUTTON_DOWN = 11
@@ -59,6 +60,8 @@ rtc.enable_timer_interrupt(False)
 
 enable = machine.Pin(ENABLE_3V3, machine.Pin.OUT)
 enable.on()
+
+cppmem.set_mode(cppmem.MICROPYTHON)
 
 
 def is_wireless():
