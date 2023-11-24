@@ -41,6 +41,7 @@ examples = [x[:-3] for x in os.listdir("/examples") if x.endswith(".py")]
 centers = (41, 147, 253)
 
 MAX_PAGE = math.ceil(len(examples) / 3)
+LAST_PAGE = MAX_PAGE - 1
 
 WIDTH = 296
 
@@ -149,10 +150,14 @@ def button(pin):
     if pin == badger2040.BUTTON_UP:
         if state["page"] > 0:
             state["page"] -= 1
+        elif state["page"] == 0:
+            state["page"] = LAST_PAGE
         render()
     if pin == badger2040.BUTTON_DOWN:
-        if state["page"] < MAX_PAGE - 1:
+        if state["page"] < LAST_PAGE:
             state["page"] += 1
+        elif state["page"] == LAST_PAGE:
+            state["page"] = 0
         render()
 
 
