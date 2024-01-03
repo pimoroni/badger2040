@@ -238,9 +238,11 @@ class Badger2040():
         self.display.set_pen(15)
         self.display.clear()
         self.display.set_pen(0)
-        if status:
+        if status == True:
             self.display.text("Connected!", 10, 10, 300, 0.5)
             self.display.text(ip, 10, 30, 300, 0.5)
+        elif status == False:
+            self.display.text("WiFi connection failed", 10, 10, 300, 0.5)
         else:
             self.display.text("Connecting...", 10, 10, 300, 0.5)
         self.update()
