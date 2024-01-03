@@ -7,9 +7,9 @@ import qrcode
 import badger_os
 
 # URLS to use (Entertainment, Science and Technology)
-URL = ["http://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml",
-       "http://feeds.bbci.co.uk/news/science_and_environment/rss.xml",
-       "http://feeds.bbci.co.uk/news/technology/rss.xml"]
+URL = ["https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml",
+       "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml",
+       "https://feeds.bbci.co.uk/news/technology/rss.xml"]
 
 code = qrcode.QRCode()
 
