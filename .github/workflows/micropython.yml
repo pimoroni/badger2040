@@ -7,8 +7,8 @@ on:
     types: [created]
 
 env:
-  MICROPYTHON_VERSION: v1.21.0
-  PIMORONI_PICO_VERSION: v1.21.0
+  MICROPYTHON_VERSION: v1.22.1
+  PIMORONI_PICO_VERSION: v1.22.1
   WORKFLOW_VERSION: v2
 
 jobs:
@@ -116,7 +116,7 @@ jobs:
     - uses: actions/checkout@v3
       with:
         repository: gadgetoid/dir2uf2
-        ref: v0.0.1
+        ref: v0.0.3
         path: dir2uf2
 
     # HACK: Patch startup overclock into Pico SDK
@@ -161,7 +161,7 @@ jobs:
     - name: Append Filesystem
       shell: bash
       run: |
-        python3 -m pip install littlefs-python==0.4.0
+        python3 -m pip install littlefs-python==0.9.3
         ./dir2uf2/dir2uf2 --fs-start ${{matrix.dir2uf2_fs_start}} --fs-size ${{matrix.dir2uf2_fs_size}} --append-to micropython/ports/rp2/build/${{env.RELEASE_FILE}} --manifest ${{env.BOARD_DIR}}/uf2-manifest.txt --filename with-badger-os.uf2 ${{env.BADGER_OS_DIR}}/
 
     - name: Store .uf2 as artifact
