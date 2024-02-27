@@ -7,8 +7,8 @@ on:
     types: [created]
 
 env:
-  MICROPYTHON_VERSION: v1.22.1
-  PIMORONI_PICO_VERSION: v1.22.1
+  MICROPYTHON_VERSION: patch-rp2-pins-location
+  PIMORONI_PICO_VERSION: ci/micropython-edge
   WORKFLOW_VERSION: v2
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       uses: actions/checkout@v3
       with:
-        repository: micropython/micropython
+        repository: pimoroni/micropython
         ref: ${{env.MICROPYTHON_VERSION}}
         submodules: false  # MicroPython submodules are hideously broken
         path: micropython
