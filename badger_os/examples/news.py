@@ -15,7 +15,7 @@ code = qrcode.QRCode()
 
 state = {
     "current_page": 0,
-    "feed": 2
+    "feed": 0
 }
 
 badger_os.state_load("news", state)
@@ -95,7 +95,14 @@ def parse_xml_stream(s, accept_tags, group_by, max_items=3):
 
             else:
                 current_tag = read_until(s, b">")
-                tag += [next_char + current_tag.split(b" ")[0]]
+                # [klotz] fix short-form close XML
+                if current_tag[-1:] == b'/':
+                    # <foo />: there's no text content, and don't process attributes, so ignore
+                    # current_tag = next_char + current_tag.split(b" ")[0].split(b"/")[0]
+                    current_tag = None
+                else:
+                    current_tag = next_char + current_tag.split(b" ")[0]
+                    tag += [current_tag]
                 text = b""
                 gc.collect()
 
@@ -124,18 +131,22 @@ def draw_qr_code(ox, oy, size, code):
 def get_rss(url):
     try:
         stream = urequest.urlopen(url)
-        output = list(parse_xml_stream(stream, [b"title", b"description", b"guid", b"pubDate"], b"item"))
+        # [klotz] accommodate guid or link
+        output = list(parse_xml_stream(stream, [b"title", b"description", b"guid", b"link", b"pubDate"], b"item"))
         return output
 
     except OSError as e:
-        print(e)
+        # [klotz] better errors
+        print("error", url, e)
         return False
 
+    finally:
+        stream.close()
 
 # Connects to the wireless network. Ensure you have entered your details in WIFI_CONFIG.py :).
 display.connect()
 
-print(state["feed"])
+print(f"feed: {state["feed"]}")
 feed = get_rss(URL[state["feed"]])
 
 
@@ -151,7 +162,18 @@ def draw_page():
     display.set_pen(0)
     display.rectangle(0, 0, WIDTH, 20)
     display.set_pen(15)
-    display.text("News", 3, 4)
+
+    # [klotz]
+    if feed:
+        def urlhostname(url):
+            """return hostname of url, without external dependencies"""
+            return url.split('//')[-1].split('/')[0]
+        url = URL[state["feed"]]
+        hostname = urlhostname(url)
+        display.text("News " + hostname, 3, 4)
+    else:
+        display.text("News", 3, 4)
+
     display.text("Page: " + str(state["current_page"] + 1), WIDTH - display.measure_text("Page:  ") - 4, 4)
     display.set_pen(0)
 
@@ -160,9 +182,9 @@ def draw_page():
     # Draw articles from the feed if they're available.
     if feed:
         page = state["current_page"]
-        display.set_pen(0)
         display.text(feed[page]["title"], 2, 30, WIDTH - 130, 2)
-        code.set_text(feed[page]["guid"])
+        # [klotz]
+        code.set_text(feed[page]["link"] or feed[page]["guid"])
         draw_qr_code(WIDTH - 100, 25, 100, code)
 
     else:
@@ -192,6 +214,7 @@ while True:
     if button_a.value():
         state["feed"] = 0
         state["current_page"] = 0
+        feed = None
         feed = get_rss(URL[state["feed"]])
         badger_os.state_save("news", state)
         changed = True
@@ -199,6 +222,7 @@ while True:
     if button_b.value():
         state["feed"] = 1
         state["current_page"] = 0
+        feed = None
         feed = get_rss(URL[state["feed"]])
         badger_os.state_save("news", state)
         changed = True
@@ -206,9 +230,11 @@ while True:
     if button_c.value():
         state["feed"] = 2
         state["current_page"] = 0
+        feed = None
         feed = get_rss(URL[state["feed"]])
         badger_os.state_save("news", state)
         changed = True
 
     if changed:
+        print(f"feed: {state["feed"]} page: {state["current_page"]} url: {URL[state["feed"]]}")
         draw_page()
