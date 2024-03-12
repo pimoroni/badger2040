@@ -34,6 +34,7 @@ You no longer need to edit `launcher.py` to include your own custom apps, just p
 The switch from Badger's own library to PicoGraphics changed a few minor things:
 
 * `pen()` is now `set_pen()`
+* `font()` is now `set_font()`
 * `update_speed()` is now `set_update_speed()`
 * `thickness()` is now `set_thickness()` and *only* applies to Hershey fonts
 
