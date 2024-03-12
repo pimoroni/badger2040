@@ -3,6 +3,7 @@ import qrcode
 import time
 import os
 import badger_os
+import re
 
 # Check that the qrcodes directory exists, if not, make it
 try:
@@ -88,6 +89,9 @@ def draw_qr_file(n):
     code_text = lines.pop(0)
     title_text = lines.pop(0)
     detail_text = lines
+    # For vcards to work, we need to be able to insert new lines. Use <br> as new line character:
+    code_text = re.sub("<br>","\n",code_text)
+
 
     # Clear the Display
     display.set_pen(15)  # Change this to 0 if a white background is used
@@ -133,10 +137,16 @@ while True:
             if state["current_qr"] > 0:
                 state["current_qr"] -= 1
                 changed = True
+            else:
+                state["current_qr"] = TOTAL_CODES - 1
+                changed = True
 
         if display.pressed(badger2040.BUTTON_DOWN):
             if state["current_qr"] < TOTAL_CODES - 1:
                 state["current_qr"] += 1
+                changed = True
+            else:
+                state["current_qr"] = 0
                 changed = True
 
     if display.pressed(badger2040.BUTTON_B) or display.pressed(badger2040.BUTTON_C):
