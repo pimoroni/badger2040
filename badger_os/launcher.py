@@ -94,12 +94,13 @@ def render():
         icon_label = label.replace("_", "-")
         icon = f"{APP_DIR}/icon-{icon_label}"
         label = label.replace("_", " ")
-        try:
-            png.open_file(f"{icon}.png")
-            png.decode(x - 26, 30)
-        except (OSError, RuntimeError):
-            jpeg.open_file(f"{icon}.jpg")
-            jpeg.decode(x - 26, 30)
+        for lib, ext in [(png, "png"), (jpeg, "jpg")]:
+            try:
+                lib.open_file(f"{icon}.{ext}")
+                lib.decode(x - 26, 30)
+                break
+            except (OSError, RuntimeError):
+                continue
         display.set_pen(0)
         w = display.measure_text(label, FONT_SIZE)
         display.text(label, int(x - (w / 2)), 16 + 80, WIDTH, FONT_SIZE)
