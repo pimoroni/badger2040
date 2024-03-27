@@ -54,9 +54,16 @@ class NetworkManager:
     async def wait(self, mode):
         while not self.isconnected():
             self._handle_status(mode, None)
-            if mode == network.STA_IF and self._sta_if.status() == network.STAT_CONNECT_FAIL:
-                self._handle_status(mode, False)
-                return False
+            if mode == network.STA_IF:
+                if self._sta_if.status() == network.STAT_CONNECT_FAIL:
+                    self._handle_status(mode, False)
+                    return False
+                if self._sta_if.status() == network.STAT_NO_AP_FOUND:
+                    self._handle_error(mode, "AP not found!")
+                    return False
+                if self._sta_if.status() == network.STAT_WRONG_PASSWORD:
+                    self._handle_error(mode, "Wrong password!")
+                    return False
             await uasyncio.sleep_ms(1000)
         self._handle_status(mode, True)
         return True
