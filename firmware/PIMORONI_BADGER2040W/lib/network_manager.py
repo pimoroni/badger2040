@@ -7,11 +7,12 @@ import uasyncio
 class NetworkManager:
     _ifname = ("Client", "Access Point")
 
-    def __init__(self, country="GB", client_timeout=60, access_point_timeout=5, status_handler=None, error_handler=None):
+    def __init__(self, country="GB", client_timeout=60, access_point_timeout=5, status_handler=None, error_handler=None, retries=2):
         rp2.country(country)
         self._ap_if = network.WLAN(network.AP_IF)
         self._sta_if = network.WLAN(network.STA_IF)
 
+        self._retries = retries
         self._mode = network.STA_IF
         self._client_timeout = client_timeout
         self._access_point_timeout = access_point_timeout
@@ -53,7 +54,19 @@ class NetworkManager:
     async def wait(self, mode):
         while not self.isconnected():
             self._handle_status(mode, None)
+            if mode == network.STA_IF:
+                if self._sta_if.status() == network.STAT_CONNECT_FAIL:
+                    self._handle_status(mode, False)
+                    return False
+                if self._sta_if.status() == network.STAT_NO_AP_FOUND:
+                    self._handle_error(mode, "AP not found!")
+                    return False
+                if self._sta_if.status() == network.STAT_WRONG_PASSWORD:
+                    self._handle_error(mode, "Wrong password!")
+                    return False
             await uasyncio.sleep_ms(1000)
+        self._handle_status(mode, True)
+        return True
 
     def _handle_status(self, mode, status):
         if callable(self._status_handler):
@@ -75,16 +88,20 @@ class NetworkManager:
 
         self._sta_if.active(True)
         self._sta_if.config(pm=0xa11140)
-        self._sta_if.connect(ssid, psk)
 
-        try:
-            await uasyncio.wait_for(self.wait(network.STA_IF), self._client_timeout)
-            self._handle_status(network.STA_IF, True)
+        for _ in range(self._retries):
+            try:
+                self._sta_if.connect(ssid, psk)
+                result = await uasyncio.wait_for(self.wait(network.STA_IF), self._client_timeout)
+                if result:
+                    return
 
-        except uasyncio.TimeoutError:
-            self._sta_if.active(False)
-            self._handle_status(network.STA_IF, False)
-            self._handle_error(network.STA_IF, "WIFI Client Failed")
+            except uasyncio.TimeoutError:
+                pass
+
+        self._sta_if.active(False)
+        self._handle_status(network.STA_IF, False)
+        self._handle_error(network.STA_IF, "WIFI Client Failed")
 
     async def access_point(self):
         if self._ap_if.isconnected():
@@ -99,8 +116,7 @@ class NetworkManager:
         self._ap_if.active(True)
 
         try:
-            await uasyncio.wait_for(self.wait(network.AP_IF), self._access_point_timeout)
-            self._handle_status(network.AP_IF, True)
+            _ = await uasyncio.wait_for(self.wait(network.AP_IF), self._access_point_timeout)
 
         except uasyncio.TimeoutError:
             self._sta_if.active(False)

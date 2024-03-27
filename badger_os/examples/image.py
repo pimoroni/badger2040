@@ -3,6 +3,7 @@ import badger2040
 from badger2040 import HEIGHT, WIDTH
 import badger_os
 import jpegdec
+import pngdec
 
 
 TOTAL_IMAGES = 0
@@ -14,11 +15,12 @@ display.led(128)
 display.set_update_speed(badger2040.UPDATE_NORMAL)
 
 jpeg = jpegdec.JPEG(display.display)
+png = pngdec.PNG(display.display)
 
 
 # Load images
 try:
-    IMAGES = [f for f in os.listdir("/images") if f.endswith(".jpg")]
+    IMAGES = [f for f in os.listdir("/images") if f.endswith(".jpg") or f.endswith(".png")]
     TOTAL_IMAGES = len(IMAGES)
 except OSError:
     pass
@@ -32,18 +34,24 @@ state = {
 
 def show_image(n):
     file = IMAGES[n]
-    name = file.split(".")[0]
-    jpeg.open_file("/images/{}".format(file))
-    jpeg.decode()
+    name, ext = file.split(".")
+
+    try:
+        png.open_file("/images/{}".format(file))
+        png.decode()
+    except (OSError, RuntimeError):
+        jpeg.open_file("/images/{}".format(file))
+        jpeg.decode()
 
     if state["show_info"]:
-        name_length = display.measure_text(name, 0.5)
+        label = f"{name} ({ext})"
+        name_length = display.measure_text(label, 0.5)
         display.set_pen(0)
         display.rectangle(0, HEIGHT - 21, name_length + 11, 21)
         display.set_pen(15)
         display.rectangle(0, HEIGHT - 20, name_length + 10, 20)
         display.set_pen(0)
-        display.text(name, 5, HEIGHT - 10, WIDTH, 0.5)
+        display.text(label, 5, HEIGHT - 10, WIDTH, 0.5)
 
         for i in range(TOTAL_IMAGES):
             x = 286
