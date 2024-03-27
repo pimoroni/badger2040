@@ -241,8 +241,10 @@ class Badger2040():
         if status:
             self.display.text("Connected!", 10, 10, 300, 0.5)
             self.display.text(ip, 10, 30, 300, 0.5)
-        else:
+        elif status is None:
             self.display.text("Connecting...", 10, 10, 300, 0.5)
+        else:
+            self.display.text("Connection failed!", 10, 10, 300, 0.5)
         self.update()
 
     def isconnected(self):
