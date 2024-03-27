@@ -1,6 +1,6 @@
 launcher.py
 main.py
-examples/*.jpg
+examples/*.png
 examples/badge.py
 examples/clock.py
 examples/ebook.py
@@ -15,4 +15,4 @@ images/*.txt
 badges/*.txt
 badges/*.jpg
 books/*.txt
-icons/*.jpg
+icons/*.png
