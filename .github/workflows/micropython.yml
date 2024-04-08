@@ -18,7 +18,7 @@ jobs:
     steps:
     - name: Workspace Cache
       id: cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{runner.workspace}}
         key: workspace-micropython-${{env.MICROPYTHON_VERSION}}-${{env.WORKFLOW_VERSION}}
@@ -28,7 +28,7 @@ jobs:
     # Check out MicroPython
     - name: Checkout MicroPython
       if: steps.cache.outputs.cache-hit != 'true'
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: micropython/micropython
         ref: ${{env.MICROPYTHON_VERSION}}
@@ -83,7 +83,7 @@ jobs:
 
     steps:
     - name: Compiler Cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: /home/runner/.ccache
         key: ccache-micropython-${{matrix.shortname}}-${{github.ref}}-${{github.sha}}
@@ -92,20 +92,20 @@ jobs:
           ccache-micropython-${{matrix.shortname}}-
 
     - name: Workspace Cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{runner.workspace}}
         key: workspace-micropython-${{env.MICROPYTHON_VERSION}}-${{env.WORKFLOW_VERSION}}
         restore-keys: |
           workspace-micropython-${{env.MICROPYTHON_VERSION}}-${{env.WORKFLOW_VERSION}}
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
         path: badger2040
 
     # Check out Pimoroni Pico
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         repository: pimoroni/pimoroni-pico
         ref: ${{env.PIMORONI_PICO_VERSION}}
@@ -113,7 +113,7 @@ jobs:
         path: pimoroni-pico
 
     # Check out dir2u2f
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         repository: gadgetoid/dir2uf2
         ref: v0.0.1
@@ -165,13 +165,13 @@ jobs:
         ./dir2uf2/dir2uf2 --fs-start ${{matrix.dir2uf2_fs_start}} --fs-size ${{matrix.dir2uf2_fs_size}} --append-to micropython/ports/rp2/build/${{env.RELEASE_FILE}} --manifest ${{env.BOARD_DIR}}/uf2-manifest.txt --filename with-badger-os.uf2 ${{env.BADGER_OS_DIR}}/
 
     - name: Store .uf2 as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{env.RELEASE_FILE}}
         path: micropython/ports/rp2/build/${{env.RELEASE_FILE}}
 
     - name: Store .uf2 + Badger OS as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{env.RELEASE_FILE_WITH_OS}}
         path: ${{env.RELEASE_FILE_WITH_OS}}
