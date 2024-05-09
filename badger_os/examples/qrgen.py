@@ -121,6 +121,11 @@ def draw_qr_file(n):
 
 
 badger_os.state_load("qrcodes", state)
+
+# When we removed some files code may try to display not existing entry
+if state["current_qr"] > TOTAL_CODES - 1:
+    state["current_qr"] = 0
+
 changed = True
 
 while True:
