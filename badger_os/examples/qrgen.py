@@ -43,7 +43,7 @@ more about Badger 2040.
 
 # Load all available QR Code Files
 try:
-    CODES = [f for f in os.listdir("/qrcodes") if f.endswith(".txt")]
+    CODES = sorted([f for f in os.listdir("/qrcodes") if f.endswith(".txt")])
     TOTAL_CODES = len(CODES)
 except OSError:
     pass
