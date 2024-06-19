@@ -43,7 +43,7 @@ more about Badger 2040.
 
 # Load all available QR Code Files
 try:
-    CODES = [f for f in os.listdir("/qrcodes") if f.endswith(".txt")]
+    CODES = sorted([f for f in os.listdir("/qrcodes") if f.endswith(".txt")])
     TOTAL_CODES = len(CODES)
 except OSError:
     pass
@@ -121,6 +121,11 @@ def draw_qr_file(n):
 
 
 badger_os.state_load("qrcodes", state)
+
+# When we removed some files code may try to display not existing entry
+if state["current_qr"] > TOTAL_CODES - 1:
+    state["current_qr"] = 0
+
 changed = True
 
 while True:
@@ -133,11 +138,16 @@ while True:
             if state["current_qr"] > 0:
                 state["current_qr"] -= 1
                 changed = True
+            else:
+                state["current_qr"] = TOTAL_CODES - 1
+            changed = True
 
-        if display.pressed(badger2040.BUTTON_DOWN):
+        elif display.pressed(badger2040.BUTTON_DOWN):
             if state["current_qr"] < TOTAL_CODES - 1:
                 state["current_qr"] += 1
-                changed = True
+            else:
+                state["current_qr"] = 0
+            changed = True
 
     if display.pressed(badger2040.BUTTON_B) or display.pressed(badger2040.BUTTON_C):
         display.set_pen(15)
