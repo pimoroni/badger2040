@@ -1,0 +1,44 @@
+From 932f76c6ba64c5a3e68de3324556d9979f09303b Mon Sep 17 00:00:00 2001
+From: Phil Howard <phil@gadgetoid.com>
+Date: Tue, 27 Feb 2024 10:19:35 +0000
+Subject: [PATCH] rp2/CMakeLists: Use MICROPY_BOARD_DIR to find pins.csv.
+
+Assuming that ${MICROPY_PORT_DIR}/boards/${MICROPY_BOARD} is equal to
+${MICROPY_BOARD_DIR} is not valid, because the latter could point to a path
+outside the main MicroPython repository.
+
+Replace this path with the canonical ${MICROPY_BOARD_DIR} so that pins.csv
+is correctly located when building against out-of-tree board definitions.
+
+Additionally remove MICROPY_BOARDS_DIR to discourage similar mistakes.
+
+Signed-off-by: Phil Howard <phil@gadgetoid.com>
+---
+ ports/rp2/CMakeLists.txt | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
+
+diff --git a/ports/rp2/CMakeLists.txt b/ports/rp2/CMakeLists.txt
+index f86224a5c067..d3ecee586054 100644
+--- a/ports/rp2/CMakeLists.txt
++++ b/ports/rp2/CMakeLists.txt
+@@ -530,15 +530,14 @@ endforeach()
+ # Include the main MicroPython cmake rules.
+ include(${MICROPY_DIR}/py/mkrules.cmake)
+ 
+-set(MICROPY_BOARDS_DIR "${MICROPY_PORT_DIR}/boards")
+-set(GEN_PINS_AF_CSV "${MICROPY_BOARDS_DIR}/rp2_af.csv")
+-set(GEN_PINS_PREFIX "${MICROPY_BOARDS_DIR}/rp2_prefix.c")
+-set(GEN_PINS_MKPINS "${MICROPY_BOARDS_DIR}/make-pins.py")
++set(GEN_PINS_AF_CSV "${MICROPY_PORT_DIR}/boards/rp2_af.csv")
++set(GEN_PINS_PREFIX "${MICROPY_PORT_DIR}/boards/rp2_prefix.c")
++set(GEN_PINS_MKPINS "${MICROPY_PORT_DIR}/boards/make-pins.py")
+ set(GEN_PINS_SRC "${CMAKE_BINARY_DIR}/pins_${MICROPY_BOARD}.c")
+ set(GEN_PINS_HDR "${MICROPY_GENHDR_DIR}/pins.h")
+ 
+-if(EXISTS "${MICROPY_BOARDS_DIR}/${MICROPY_BOARD}/pins.csv")
+-    set(GEN_PINS_BOARD_CSV "${MICROPY_BOARDS_DIR}/${MICROPY_BOARD}/pins.csv")
++if(EXISTS "${MICROPY_BOARD_DIR}/pins.csv")
++    set(GEN_PINS_BOARD_CSV "${MICROPY_BOARD_DIR}/pins.csv")
+     set(GEN_PINS_CSV_ARG --board-csv "${GEN_PINS_BOARD_CSV}")
+ endif()
+ 

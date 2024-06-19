@@ -1,8 +1,8 @@
 diff --git a/ports/rp2/CMakeLists.txt b/ports/rp2/CMakeLists.txt
-index 281b0c3bc..7e04bb549 100644
+index e058c0a..fd97871 100644
 --- a/ports/rp2/CMakeLists.txt
 +++ b/ports/rp2/CMakeLists.txt
-@@ -453,6 +453,16 @@ target_link_options(${MICROPY_TARGET} PRIVATE
+@@ -455,6 +455,16 @@ target_link_options(${MICROPY_TARGET} PRIVATE
      -Wl,--wrap=dcd_event_handler
  )
  
@@ -16,6 +16,6 @@ index 281b0c3bc..7e04bb549 100644
 +>)
 +target_link_options(usermod INTERFACE -specs=nano.specs)
 +
+ # Apply optimisations to performance-critical source code.
  set_source_files_properties(
-     ${PICO_SDK_PATH}/src/rp2_common/pico_double/double_math.c
-     ${PICO_SDK_PATH}/src/rp2_common/pico_float/float_math.c
+     ${MICROPY_PY_DIR}/map.c
