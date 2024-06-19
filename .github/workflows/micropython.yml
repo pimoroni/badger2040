@@ -112,6 +112,13 @@ jobs:
         submodules: true
         path: pimoroni-pico
 
+    - name: "Py_Decl: Checkout py_decl"
+      uses: actions/checkout@v4
+      with:
+        repository: gadgetoid/py_decl
+        ref: v0.0.1
+        path: py_decl
+
     # Check out dir2u2f
     - uses: actions/checkout@v4
       with:
@@ -159,6 +166,11 @@ jobs:
       working-directory: micropython/ports/rp2/build
       run: |
         cp firmware.uf2 ${{env.RELEASE_FILE}}
+
+    - name: "Py_Decl: Verify UF2"
+      shell: bash
+      run: |
+        python3 py_decl/py_decl.py --to-json --verify micropython/ports/rp2/build/${{ env.RELEASE_FILE }}
 
     - name: Append Filesystem
       shell: bash
