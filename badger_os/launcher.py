@@ -4,6 +4,7 @@ import time
 import math
 import badger2040
 import badger_os
+import pngdec
 import jpegdec
 
 APP_DIR = "/examples"
@@ -26,6 +27,7 @@ display = badger2040.Badger2040()
 display.set_font("bitmap8")
 display.led(128)
 
+png = pngdec.PNG(display.display)
 jpeg = jpegdec.JPEG(display.display)
 
 state = {
@@ -90,10 +92,15 @@ def render():
         x = centers[i]
         label = examples[i + (state["page"] * 3)]
         icon_label = label.replace("_", "-")
-        icon = f"{APP_DIR}/icon-{icon_label}.jpg"
+        icon = f"{APP_DIR}/icon-{icon_label}"
         label = label.replace("_", " ")
-        jpeg.open_file(icon)
-        jpeg.decode(x - 26, 30)
+        for lib, ext in [(png, "png"), (jpeg, "jpg")]:
+            try:
+                lib.open_file(f"{icon}.{ext}")
+                lib.decode(x - 26, 30)
+                break
+            except (OSError, RuntimeError):
+                continue
         display.set_pen(0)
         w = display.measure_text(label, FONT_SIZE)
         display.text(label, int(x - (w / 2)), 16 + 80, WIDTH, FONT_SIZE)

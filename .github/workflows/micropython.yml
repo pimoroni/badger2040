@@ -7,9 +7,9 @@ on:
     types: [created]
 
 env:
-  MICROPYTHON_VERSION: v1.21.0
-  PIMORONI_PICO_VERSION: v1.21.0
-  WORKFLOW_VERSION: v2
+  MICROPYTHON_VERSION: v1.23.0
+  PIMORONI_PICO_VERSION: v1.23.0-1
+  WORKFLOW_VERSION: v3
 
 jobs:
   deps:
@@ -64,15 +64,9 @@ jobs:
           - name: Badger 2040
             shortname: badger2040
             board: PIMORONI_BADGER2040
-            # 0x10000000 + (2*1024*1024) - (1408*1024)
-            dir2uf2_fs_start: 269090816
-            dir2uf2_fs_size: 1441792
           - name: Badger 2040 W
             shortname: badger2040w
             board: PIMORONI_BADGER2040W
-            # 0x10000000 + (2*1024*1024) - (848*1024)
-            dir2uf2_fs_start: 269664256
-            dir2uf2_fs_size: 868352
 
     env:
       RELEASE_FILE: pimoroni-${{matrix.shortname}}-${{github.event.release.tag_name || github.sha}}-micropython.uf2
@@ -112,11 +106,18 @@ jobs:
         submodules: true
         path: pimoroni-pico
 
+    - name: "Py_Decl: Checkout py_decl"
+      uses: actions/checkout@v4
+      with:
+        repository: gadgetoid/py_decl
+        ref: v0.0.1
+        path: py_decl
+
     # Check out dir2u2f
     - uses: actions/checkout@v4
       with:
         repository: gadgetoid/dir2uf2
-        ref: v0.0.1
+        ref: v0.0.4
         path: dir2uf2
 
     # HACK: Patch startup overclock into Pico SDK
@@ -129,7 +130,9 @@ jobs:
     - name: "HACK: CMakeLists.txt Disable C++ Exceptions Patch"
       shell: bash
       working-directory: micropython
-      run: git apply "${{env.FIRMWARE_DIR}}/micropython_nano_specs.patch"
+      run: |
+        git apply "${{env.FIRMWARE_DIR}}/932f76c6ba64c5a3e68de3324556d9979f09303b.patch"
+        git apply "${{env.FIRMWARE_DIR}}/micropython_nano_specs.patch"
 
     # Install apt packages
     - name: Install CCache & Compiler
@@ -158,11 +161,16 @@ jobs:
       run: |
         cp firmware.uf2 ${{env.RELEASE_FILE}}
 
+    - name: "Py_Decl: Verify UF2"
+      shell: bash
+      run: |
+        python3 py_decl/py_decl.py --to-json --verify micropython/ports/rp2/build/${{ env.RELEASE_FILE }}
+
     - name: Append Filesystem
       shell: bash
       run: |
         python3 -m pip install littlefs-python==0.4.0
-        ./dir2uf2/dir2uf2 --fs-start ${{matrix.dir2uf2_fs_start}} --fs-size ${{matrix.dir2uf2_fs_size}} --append-to micropython/ports/rp2/build/${{env.RELEASE_FILE}} --manifest ${{env.BOARD_DIR}}/uf2-manifest.txt --filename with-badger-os.uf2 ${{env.BADGER_OS_DIR}}/
+        ./dir2uf2/dir2uf2 --append-to micropython/ports/rp2/build/${{env.RELEASE_FILE}} --manifest ${{env.BOARD_DIR}}/uf2-manifest.txt --filename with-badger-os.uf2 ${{env.BADGER_OS_DIR}}/
 
     - name: Store .uf2 as artifact
       uses: actions/upload-artifact@v4
