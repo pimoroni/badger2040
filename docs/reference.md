@@ -251,7 +251,7 @@ There are some useful functions to determine if Badger 2040 has been woken by a 
 
 ### Real-time Clock
 
-Badger 2040 W includes a PCF85063a RTC which continues to run from battery when the Badger is off. It can be used to wake the Badger on a schedule.
+Badger 2040 W includes a PCF85063a RTC which continues to run from battery when the Badger is off and can be used to wake the Badger on a schedule. Badger W communicates with the RTC using I2C (the RTC's I2C address is 0x51).
 
 The following functions provide a simple API to the RTC features:
 
