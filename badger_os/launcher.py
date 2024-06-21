@@ -22,6 +22,9 @@ else:
     # Otherwise restore previously running app
     badger_os.state_launch()
 
+# for e.g. 2xAAA batteries, try max 3.4 min 3.0
+MAX_BATTERY_VOLTAGE = 4.0
+MIN_BATTERY_VOLTAGE = 3.2
 
 display = badger2040.Badger2040()
 display.set_font("bitmap8")
@@ -49,6 +52,29 @@ WIDTH = 296
 
 def map_value(input, in_min, in_max, out_min, out_max):
     return (((input - in_min) * (out_max - out_min)) / (in_max - in_min)) + out_min
+
+
+def draw_battery(level, x, y):
+    # Outline
+    display.set_pen(15)
+    display.rectangle(x, y, 19, 10)
+    # Terminal
+    display.rectangle(x + 19, y + 3, 2, 4)
+    display.set_pen(0)
+    display.rectangle(x + 1, y + 1, 17, 8)
+    if level < 1:
+        display.set_pen(0)
+        display.line(x + 3, y, x + 3 + 10, y + 10)
+        display.line(x + 3 + 1, y, x + 3 + 11, y + 10)
+        display.set_pen(15)
+        display.line(x + 2 + 2, y - 1, x + 4 + 12, y + 11)
+        display.line(x + 2 + 3, y - 1, x + 4 + 13, y + 11)
+        return
+    # Battery Bars
+    display.set_pen(15)
+    for i in range(4):
+        if level / 4 > (1.0 * i) / 4:
+            display.rectangle(i * 4 + x + 2, y + 2, 3, 6)
 
 
 def draw_disk_usage(x):
@@ -117,6 +143,10 @@ def render():
     display.set_pen(0)
     display.rectangle(0, 0, WIDTH, 16)
     draw_disk_usage(90)
+    if badger2040.is_wireless():
+        vbat = badger_os.get_battery_level()
+        bat = int(map_value(vbat, MIN_BATTERY_VOLTAGE, MAX_BATTERY_VOLTAGE, 0, 4))
+        draw_battery(bat, WIDTH - 22 - 3, 3)
     display.set_pen(15)
     display.text("badgerOS", 4, 4, WIDTH, 1.0)
 
