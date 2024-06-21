@@ -1,5 +1,6 @@
 import badger2040
 import jpegdec
+import pngdec
 
 
 # Global Constants
@@ -56,9 +57,14 @@ def draw_badge():
     display.set_pen(0)
     display.clear()
 
-    # Draw badge image
-    jpeg.open_file(badge_image)
-    jpeg.decode(WIDTH - IMAGE_WIDTH, 0)
+    try:
+        # Draw badge image
+        png.open_file(badge_image)
+        png.decode(WIDTH - IMAGE_WIDTH, 0)
+    except (OSError, RuntimeError):
+        # Draw badge image
+        jpeg.open_file(badge_image)
+        jpeg.decode(WIDTH - IMAGE_WIDTH, 0)
 
     # Draw a border around the image
     display.set_pen(0)
@@ -123,6 +129,7 @@ display.set_update_speed(badger2040.UPDATE_NORMAL)
 display.set_thickness(2)
 
 jpeg = jpegdec.JPEG(display.display)
+png = pngdec.PNG(display.display)
 
 # Open the badge file
 try:
