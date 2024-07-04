@@ -37,7 +37,7 @@ state = {
 
 badger_os.state_load("launcher", state)
 
-examples = [x[:-3] for x in os.listdir("/examples") if x.endswith(".py")]
+examples = [x[:-3] for x in os.listdir(APP_DIR) if x.endswith(".py")]
 
 # Approximate center lines for buttons A, B and C
 centers = (41, 147, 253)
