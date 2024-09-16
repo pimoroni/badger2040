@@ -7,9 +7,10 @@ on:
     types: [created]
 
 env:
-  MICROPYTHON_VERSION: v1.23.0
-  PIMORONI_PICO_VERSION: v1.23.0-1
-  WORKFLOW_VERSION: v3
+  MICROPYTHON_FLAVOUR: pimoroni/micropython
+  MICROPYTHON_VERSION: feature/psram
+  PIMORONI_PICO_VERSION: ci/micropython-edge
+  WORKFLOW_VERSION: v5
 
 jobs:
   deps:
@@ -30,7 +31,7 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       uses: actions/checkout@v4
       with:
-        repository: micropython/micropython
+        repository: ${{env.MICROPYTHON_FLAVOUR}}
         ref: ${{env.MICROPYTHON_VERSION}}
         submodules: false  # MicroPython submodules are hideously broken
         path: micropython
@@ -58,6 +59,7 @@ jobs:
     needs: deps
     name: Build ${{matrix.name}}
     runs-on: ubuntu-20.04
+    continue-on-error: true
     strategy:
       matrix:
         include:
@@ -67,6 +69,9 @@ jobs:
           - name: Badger 2040 W
             shortname: badger2040w
             board: PIMORONI_BADGER2040W
+          - name: Badger 2350
+            shortname: badger2350
+            board: PIMORONI_BADGER2350
 
     env:
       RELEASE_FILE: pimoroni-${{matrix.shortname}}-${{github.event.release.tag_name || github.sha}}-micropython.uf2
@@ -110,34 +115,26 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: gadgetoid/py_decl
-        ref: v0.0.1
+        ref: v0.0.2
         path: py_decl
 
     # Check out dir2u2f
     - uses: actions/checkout@v4
       with:
         repository: gadgetoid/dir2uf2
-        ref: v0.0.5
+        ref: patch-rp2350
         path: dir2uf2
 
-    # HACK: Patch startup overclock into Pico SDK
-    - name: "HACK: Startup Overclock Patch"
-      shell: bash
-      working-directory: micropython/lib/pico-sdk
-      run: |
-        git apply "${{env.FIRMWARE_DIR}}/startup_overclock.patch"
-
-    - name: "HACK: MicroPython out of tree board pins.csv fix"
-      shell: bash
-      working-directory: micropython
-      run: |
-        git apply "${{env.FIRMWARE_DIR}}/932f76c6ba64c5a3e68de3324556d9979f09303b.patch"
+    - name: Install Arm GNU Toolchain (arm-none-eabi-gcc)
+      uses: carlosperate/arm-none-eabi-gcc-action@v1
+      with:
+        release: '9-2020-q2'
 
     # Install apt packages
     - name: Install CCache & Compiler
       shell: bash
       run:
-        sudo apt update && sudo apt install ccache gcc-arm-none-eabi
+        sudo apt update && sudo apt install ccache
 
     # Build firmware
     - name: Configure MicroPython
