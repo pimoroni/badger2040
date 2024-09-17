@@ -115,14 +115,14 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: gadgetoid/py_decl
-        ref: v0.0.2
+        ref: v0.0.3
         path: py_decl
 
     # Check out dir2u2f
     - uses: actions/checkout@v4
       with:
         repository: gadgetoid/dir2uf2
-        ref: patch-rp2350
+        ref: v0.0.8
         path: dir2uf2
 
     - name: Install Arm GNU Toolchain (arm-none-eabi-gcc)
