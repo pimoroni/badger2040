@@ -9,7 +9,7 @@ on:
 env:
   MICROPYTHON_FLAVOUR: pimoroni/micropython
   MICROPYTHON_VERSION: feature/psram
-  PIMORONI_PICO_VERSION: ci/micropython-edge
+  PIMORONI_PICO_VERSION: grey-badger-sounds-like-a-kojima-character
   WORKFLOW_VERSION: v5
 
 jobs:
