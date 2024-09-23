@@ -117,7 +117,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         repository: gadgetoid/dir2uf2
-        ref: v0.0.5
+        ref: feature/no-uf2-padding
         path: dir2uf2
 
     # HACK: Patch startup overclock into Pico SDK
@@ -169,7 +169,7 @@ jobs:
       shell: bash
       run: |
         python3 -m pip install littlefs-python==0.12.0
-        ./dir2uf2/dir2uf2 --fs-compact --append-to micropython/ports/rp2/build/${{env.RELEASE_FILE}} --manifest ${{env.BOARD_DIR}}/uf2-manifest.txt --filename with-badger-os.uf2 ${{env.BADGER_OS_DIR}}/
+        ./dir2uf2/dir2uf2 --fs-compact --sparse --append-to micropython/ports/rp2/build/${{env.RELEASE_FILE}} --manifest ${{env.BOARD_DIR}}/uf2-manifest.txt --filename with-badger-os.uf2 ${{env.BADGER_OS_DIR}}/
 
     - name: Store .uf2 as artifact
       uses: actions/upload-artifact@v4
