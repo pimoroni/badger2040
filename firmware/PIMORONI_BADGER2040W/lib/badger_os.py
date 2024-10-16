@@ -81,7 +81,6 @@ def state_save(app, data):
             f.write(json.dumps(data))
             f.flush()
     except OSError:
-        import os
         try:
             os.stat("/state")
         except OSError:
