@@ -118,7 +118,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         repository: gadgetoid/dir2uf2
-        ref: v0.0.9
+        ref: v0.0.10
         path: dir2uf2
 
     # Install apt packages
