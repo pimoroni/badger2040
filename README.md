@@ -1,6 +1,9 @@
 # Badger 2040 & Badger 2040 W <!-- omit in toc -->
 ## Firmware, Examples & Documentation <!-- omit in toc -->
 
+[![MicroPython Firmware](https://github.com/pimoroni/badger2040/actions/workflows/micropython.yml/badge.svg?branch=main)](https://github.com/pimoroni/badger2040/actions/workflows/micropython.yml)
+[![Python Linting](https://github.com/pimoroni/badger2040/actions/workflows/python-linting.yml/badge.svg?branch=main)](https://github.com/pimoroni/badger2040/actions/workflows/python-linting.yml)
+
 Badger 2040 and Badger 2040 W are maker-friendly all-in-one badge wearables, featuring a 2.9", 296x128 pixel, monochrome e-paper display.
 
 - [Install](#install)
