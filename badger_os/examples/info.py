@@ -5,11 +5,7 @@ import version
 TEXT_SIZE = 1
 LINE_HEIGHT = 15
 
-version = version.BUILD.split('-')
-for word in version:
-    if word.startswith("v"):
-        version = word
-        break
+version = version.BUILD.split('-')[2]
 
 display = badger2040.Badger2040()
 display.led(128)
@@ -41,7 +37,7 @@ display.text("For more info:", 5, y, WIDTH, TEXT_SIZE)
 y += LINE_HEIGHT
 display.text("https://pimoroni.com/badger2040", 5, y, WIDTH, TEXT_SIZE)
 y += LINE_HEIGHT
-display.text(f"Badger OS {version[2]}", 5, y, WIDTH, TEXT_SIZE)
+display.text(f"Badger OS {version}", 5, y, WIDTH, TEXT_SIZE)
 
 display.update()
 
