@@ -41,7 +41,7 @@ display.text("For more info:", 5, y, WIDTH, TEXT_SIZE)
 y += LINE_HEIGHT
 display.text("https://pimoroni.com/badger2040", 5, y, WIDTH, TEXT_SIZE)
 y += LINE_HEIGHT
-display.text("Badger OS " + version, 5, y, WIDTH, TEXT_SIZE)
+display.text(f"Badger OS {version}", 5, y, WIDTH, TEXT_SIZE)
 
 display.update()
 
