@@ -9,8 +9,8 @@ on:
 env:
   MICROPYTHON_VERSION: master
   MICROPYTHON_FLAVOUR: micropython
-  PIMORONI_PICO_VERSION: ci/micropython-edge
-  WORKFLOW_VERSION: v3
+  PIMORONI_PICO_VERSION: feature/picovector2-and-layers
+  WORKFLOW_VERSION: v4
 
 jobs:
   deps:
