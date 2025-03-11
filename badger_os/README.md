@@ -17,7 +17,6 @@ They should help you get started quickly and give you something to modify for yo
   - [News](#news)
   - [Qrgen](#qrgen)
   - [Weather](#weather)
-- [Other Resources](#other-resources)
 
 ## Examples
 
@@ -119,11 +118,3 @@ Display QR codes and associated text.
 
 Display current weather data from the [Open-Meteo weather API](https://open-meteo.com/)
 
-## Other Resources
-
-Here are some cool Badger-related community projects and resources that you might find useful / inspirational! Note that code at the links below has not been tested by us and we're not able to offer support with it.
-
-- :link: [Send messages to Badger via webform](https://github.com/techcree/Badger2040W/tree/main/webform)
-- :link: [3D printed Badger 2040 W enclosure](https://kaenner.de/badger2040w)
-- :link: [Badger Pixel Client for a Raspberry Pi Pixel Server](https://github.com/penguintutor/badger-pixel-client)
-- :link: [Badger2040 System II](https://github.com/oneearedrabbit/badger-system-ii)
