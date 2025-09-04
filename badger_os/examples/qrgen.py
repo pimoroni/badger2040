@@ -49,9 +49,9 @@ except OSError:
     pass
 
 
-print(f'There are {TOTAL_CODES} QR Codes available:')
+print(f"There are {TOTAL_CODES} QR Codes available:")
 for codename in CODES:
-    print(f'File: {codename}')
+    print(f"File: {codename}")
 
 display = badger2040.Badger2040()
 

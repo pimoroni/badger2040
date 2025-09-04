@@ -12,9 +12,12 @@ struct Wakeup {
             gpio_set_dir_masked(WAKEUP_PIN_MASK, WAKEUP_PIN_DIR);
             gpio_put_masked(WAKEUP_PIN_MASK, WAKEUP_PIN_VALUE);
 
+            gpio_init_mask(~WAKEUP_PIN_MASK);
+            gpio_set_dir_in_masked(~WAKEUP_PIN_MASK);
             wakeup_gpio_state = gpio_get_all();
             sleep_ms(5);
             wakeup_gpio_state |= gpio_get_all();
+            gpio_init_mask(~WAKEUP_PIN_MASK);
 
 #if WAKEUP_HAS_RTC==1
             // Set up RTC I2C pins and send reset command

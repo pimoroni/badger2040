@@ -106,14 +106,14 @@ def render_page():
             next_pos += len(next_word)  # This is the last word on the line
 
         # Advance our position further if the word contains special characters
-        if '\u201c' in next_word:
-            next_word = next_word.replace('\u201c', '\"')
+        if "\u201c" in next_word:
+            next_word = next_word.replace("\u201c", '"')
             next_pos += 2
-        if '\u201d' in next_word:
-            next_word = next_word.replace('\u201d', '\"')
+        if "\u201d" in next_word:
+            next_word = next_word.replace("\u201d", '"')
             next_pos += 2
-        if '\u2019' in next_word:
-            next_word = next_word.replace('\u2019', '\'')
+        if "\u2019" in next_word:
+            next_word = next_word.replace("\u2019", "'")
             next_pos += 2
 
         # Rewind the file back from the line end to the start of the next word
@@ -153,10 +153,9 @@ def render_page():
                 # Reset the position to the start of the word that made this line too long
                 ebook.seek(pos)
                 return
-            else:
-                # Set the line to the word and advance the current position
-                line = next_word
-                pos = next_pos
+            # Set the line to the word and advance the current position
+            line = next_word
+            pos = next_pos
 
             # A new line was spotted, so advance a row
             if add_newline:

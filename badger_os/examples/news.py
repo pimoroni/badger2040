@@ -124,8 +124,7 @@ def draw_qr_code(ox, oy, size, code):
 def get_rss(url):
     try:
         stream = urequest.urlopen(url)
-        output = list(parse_xml_stream(stream, [b"title", b"description", b"guid", b"pubDate"], b"item"))
-        return output
+        return list(parse_xml_stream(stream, [b"title", b"description", b"guid", b"pubDate"], b"item"))
 
     except OSError as e:
         print(e)

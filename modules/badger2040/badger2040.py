@@ -3,7 +3,6 @@ import micropython
 from picographics import PicoGraphics, DISPLAY_INKY_PACK
 import time
 import wakeup
-import pcf85063a
 import cppmem
 
 
@@ -12,7 +11,7 @@ BUTTON_A = 12
 BUTTON_B = 13
 BUTTON_C = 14
 BUTTON_UP = 15
-BUTTON_USER = None  # User button not available on W
+BUTTON_USER = 23
 
 BUTTON_MASK = 0b11111 << 11
 
@@ -27,8 +26,7 @@ UPDATE_MEDIUM = 1
 UPDATE_FAST = 2
 UPDATE_TURBO = 3
 
-RTC_ALARM = 8
-LED = 22
+LED = 25
 ENABLE_3V3 = 10
 BUSY = 26
 
@@ -49,14 +47,10 @@ BUTTONS = {
     BUTTON_B: machine.Pin(BUTTON_B, machine.Pin.IN, machine.Pin.PULL_DOWN),
     BUTTON_C: machine.Pin(BUTTON_C, machine.Pin.IN, machine.Pin.PULL_DOWN),
     BUTTON_UP: machine.Pin(BUTTON_UP, machine.Pin.IN, machine.Pin.PULL_DOWN),
+    BUTTON_USER: machine.Pin(BUTTON_USER, machine.Pin.IN, machine.Pin.PULL_UP),
 }
 
 WAKEUP_MASK = 0
-
-i2c = machine.I2C(0)
-rtc = pcf85063a.PCF85063A(i2c)
-i2c.writeto_mem(0x51, 0x00, b'\x00')  # ensure rtc is running (this should be default?)
-rtc.enable_timer_interrupt(False)
 
 enable = machine.Pin(ENABLE_3V3, machine.Pin.OUT)
 enable.on()
@@ -65,11 +59,11 @@ cppmem.set_mode(cppmem.MICROPYTHON)
 
 
 def is_wireless():
-    return True
+    return False
 
 
 def woken_by_rtc():
-    return bool(wakeup.get_gpio_state() & (1 << RTC_ALARM))
+    return False  # Badger 2040 does not include an RTC
 
 
 def woken_by_button():
@@ -86,6 +80,8 @@ def reset_pressed_to_wake():
 
 def pressed_to_wake_get_once(button):
     global WAKEUP_MASK
+    if button == BUTTON_USER:
+        return False
     result = (wakeup.get_gpio_state() & ~WAKEUP_MASK & (1 << button)) > 0
     WAKEUP_MASK |= (1 << button)
     return result
@@ -106,59 +102,22 @@ def turn_off():
     time.sleep(0.05)
     enable.off()
     # Simulate an idle state on USB power by blocking
-    # until an RTC alarm or button event
-    rtc_alarm = machine.Pin(RTC_ALARM)
+    # until a button event
     while True:
-        if rtc_alarm.value():
-            return
-        for button in BUTTONS.values():
+        for pin, button in BUTTONS.items():
+            if pin == BUTTON_USER:
+                if not button.value():
+                    return
+                continue
             if button.value():
                 return
 
 
-def pico_rtc_to_pcf():
-    # Set the PCF85063A to the time stored by Pico W's RTC
-    year, month, day, dow, hour, minute, second, _ = machine.RTC().datetime()
-    rtc.datetime((year, month, day, hour, minute, second, dow))
+def sleep_for(_minutes=None):
+    raise RuntimeError("Badger 2040 does not include an RTC.")
 
 
-def pcf_to_pico_rtc():
-    # Set Pico W's RTC to the time stored by the PCF85063A
-    t = rtc.datetime()
-    # BUG ERRNO 22, EINVAL, when date read from RTC is invalid for the Pico's RTC.
-    try:
-        machine.RTC().datetime((t[0], t[1], t[2], t[6], t[3], t[4], t[5], 0))
-        return True
-    except OSError:
-        return False
-
-
-def sleep_for(minutes):
-    year, month, day, hour, minute, second, dow = rtc.datetime()
-
-    # if the time is very close to the end of the minute, advance to the next minute
-    # this aims to fix the edge case where the board goes to sleep right as the RTC triggers, thus never waking up
-    if second >= 55:
-        minute += 1
-
-    # Can't sleep beyond a month, so clamp the sleep to a 28 day maximum
-    minutes = min(minutes, 40320)
-
-    # Calculate the future alarm date; first, turn the current time into seconds since epoch
-    sec_since_epoch = time.mktime((year, month, day, hour, minute, second, dow, 0))
-
-    # Add the required minutes to this
-    sec_since_epoch += minutes * 60
-
-    # And convert it back into a more useful tuple
-    (ayear, amonth, aday, ahour, aminute, asecond, adow, adoy) = time.localtime(sec_since_epoch)
-
-    # And now set the alarm as before, now including the day
-    rtc.clear_alarm_flag()
-    rtc.set_alarm(0, aminute, ahour, aday)
-    rtc.enable_alarm_interrupt(True)
-
-    turn_off()
+pico_rtc_to_pcf = pcf_to_pico_rtc = sleep_for
 
 
 class Badger2040():
@@ -191,10 +150,10 @@ class Badger2040():
         brightness = max(0, min(255, brightness))
         self._led.duty_u16(int(brightness * 256))
 
-    def invert(self, invert):
+    def invert(self, _invert):
         raise RuntimeError("Display invert not supported in PicoGraphics.")
 
-    def thickness(self, thickness):
+    def thickness(self, _thickness):
         raise RuntimeError("Thickness not supported in PicoGraphics.")
 
     def halt(self):
@@ -204,10 +163,14 @@ class Badger2040():
         turn_on()
 
     def pressed(self, button):
-        return BUTTONS[button].value() == 1 or pressed_to_wake_get_once(button)
+        return BUTTONS[button].value() == (0 if button == BUTTON_USER else 1) or pressed_to_wake_get_once(button)
 
     def pressed_any(self):
-        for button in BUTTONS.values():
+        for pin, button in BUTTONS.items():
+            if pin == BUTTON_USER:
+                if not button.value():
+                    return True
+                continue
             if button.value():
                 return True
         return False
@@ -232,43 +195,11 @@ class Badger2040():
                     self.display.pixel(x + ox, y + oy)
                 row >>= 1
 
-    def status_handler(self, mode, status, ip):
-        self.display.set_update_speed(2)
-        print(mode, status, ip)
-        self.display.set_pen(15)
-        self.display.clear()
-        self.display.set_pen(0)
-        if status:
-            self.display.text("Connected!", 10, 10, 300, 0.5)
-            self.display.text(ip, 10, 30, 300, 0.5)
-        elif status is None:
-            self.display.text("Connecting...", 10, 10, 300, 0.5)
-        else:
-            self.display.text("Connection failed!", 10, 10, 300, 0.5)
-        self.update()
-
     def isconnected(self):
-        import network
-        return network.WLAN(network.STA_IF).isconnected()
+        return False
 
     def ip_address(self):
-        import network
-        return network.WLAN(network.STA_IF).ifconfig()[0]
+        return (0, 0, 0, 0)
 
-    def connect(self, **args):
-        from network_manager import NetworkManager
-        import WIFI_CONFIG
-        import uasyncio
-        import gc
-
-        status_handler = args.get("status_handler", self.status_handler)
-        error_handler = args.get("error_handler", None)
-        client_timeout = args.get("timeout", 60)
-        retries = args.get("retries", 2)
-
-        if WIFI_CONFIG.COUNTRY == "":
-            raise RuntimeError("You must populate WIFI_CONFIG.py for networking.")
-
-        network_manager = NetworkManager(WIFI_CONFIG.COUNTRY, client_timeout=client_timeout, status_handler=status_handler, error_handler=error_handler, retries=retries)
-        uasyncio.get_event_loop().run_until_complete(network_manager.client(WIFI_CONFIG.SSID, WIFI_CONFIG.PSK))
-        gc.collect()
+    def connect(self):
+        pass

@@ -117,7 +117,7 @@ def launch(file):
     button_a = machine.Pin(badger2040.BUTTON_A, machine.Pin.IN, machine.Pin.PULL_DOWN)
     button_c = machine.Pin(badger2040.BUTTON_C, machine.Pin.IN, machine.Pin.PULL_DOWN)
 
-    def quit_to_launcher(pin):
+    def quit_to_launcher(_pin):
         if button_a.value() and button_c.value():
             machine.reset()
 
@@ -131,7 +131,7 @@ def launch(file):
         # If the app doesn't exist, notify the user
         warning(None, f"Could not launch: {file}")
         time.sleep(4.0)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 (We really do want to catch *all* exceptions!)
         # If the app throws an error, catch it and display!
         print(e)
         warning(None, str(e))

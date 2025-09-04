@@ -46,7 +46,7 @@ def get_data():
 
 def calculate_bearing(d):
     # calculates a compass direction from the wind direction in degrees
-    dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
+    dirs = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
     ix = round(d / (360. / len(dirs)))
     return dirs[ix % len(dirs)]
 

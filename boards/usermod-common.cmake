@@ -1,11 +1,20 @@
-set(PIMORONI_PICO_PATH ../../../../pimoroni-pico)
-include(${CMAKE_CURRENT_LIST_DIR}/../pimoroni_pico_import.cmake)
+if(NOT DEFINED PIMORONI_PICO_PATH)
+set(PIMORONI_PICO_PATH ${CMAKE_CURRENT_LIST_DIR}/../pimoroni-pico)
+endif()
+include(${PIMORONI_PICO_PATH}/pimoroni_pico_import.cmake)
 
+include_directories(${CMAKE_CURRENT_LIST_DIR}/../../)
 include_directories(${PIMORONI_PICO_PATH}/micropython)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../../")
+# Drivers, etc
+list(APPEND CMAKE_MODULE_PATH "${PIMORONI_PICO_PATH}")
+# modules_py/modules_py
 list(APPEND CMAKE_MODULE_PATH "${PIMORONI_PICO_PATH}/micropython")
+# All regular modules
 list(APPEND CMAKE_MODULE_PATH "${PIMORONI_PICO_PATH}/micropython/modules")
+
+# Allows us to find downstream /cmodules/
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/..")
 
 # Enable support for string_view (for PicoGraphics)
 set(CMAKE_C_STANDARD 11)
@@ -33,16 +42,21 @@ include(pcf85063a/micropython)
 include(adcfft/micropython)
 
 # Use our LOCAL wakeup module from firmware/modules/wakeup
-include(firmware/modules/wakeup/micropython)
+include(cmodules/wakeup/micropython)
+if(MICROPY_BOARD EQUAL "PICO_W")
+target_compile_definitions(usermod_wakeup INTERFACE
+    -DWAKEUP_HAS_RTC=1
+    -DWAKEUP_PIN_MASK=0b10000000000010000000000
+    -DWAKEUP_PIN_DIR=0b10000000000010000000000
+    -DWAKEUP_PIN_VALUE=0b10000000000010000000000
+)
+else()
 target_compile_definitions(usermod_wakeup INTERFACE
     -DWAKEUP_PIN_MASK=0b10000000000000010000000000
     -DWAKEUP_PIN_DIR=0b10000000000000010000000000
     -DWAKEUP_PIN_VALUE=0b10000000000000010000000000
 )
-
-# Note: cppmem is *required* for C++ code to function on MicroPython
-# it redirects `malloc` and `free` calls to MicroPython's heap
-include(cppmem/micropython)
+endif()
 
 # LEDs & Matrices
 include(plasma/micropython)
@@ -53,16 +67,8 @@ include(servo/micropython)
 include(encoder/micropython)
 include(motor/micropython)
 
-# version.py and pimoroni.py
-include(modules_py/modules_py)
+# C++ Magic Memory
+include(cppmem/micropython)
 
-# TODO: Use `include(micropython-disable-exceptions)`
-# Do not include stack unwinding & exception handling for C++ user modules
-target_compile_definitions(usermod INTERFACE PICO_CXX_ENABLE_EXCEPTIONS=0)
-target_compile_options(usermod INTERFACE $<$<COMPILE_LANGUAGE:CXX>:
-    -fno-exceptions
-    -fno-unwind-tables
-    -fno-rtti
-    -fno-use-cxa-atexit
->)
-target_link_options(usermod INTERFACE -specs=nano.specs)
+# Disable build-busting C++ exceptions
+include(micropython-disable-exceptions)

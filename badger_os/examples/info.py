@@ -5,7 +5,7 @@ import version
 TEXT_SIZE = 1
 LINE_HEIGHT = 15
 
-version = version.BUILD.split('-')[2]
+version = version.BUILD.split("-")[2]
 
 display = badger2040.Badger2040()
 display.led(128)

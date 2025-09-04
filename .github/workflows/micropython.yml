@@ -1,4 +1,4 @@
-name: MicroPython Firmware
+name: MicroPython
 
 on:
   push:
@@ -6,201 +6,90 @@ on:
   release:
     types: [created]
 
-env:
-  MICROPYTHON_VERSION: v1.23.0
-  PIMORONI_PICO_VERSION: v1.23.0-1
-  WORKFLOW_VERSION: v3
-
 jobs:
-  deps:
-    runs-on: ubuntu-20.04
-    name: Dependencies
-    steps:
-    - name: Workspace Cache
-      id: cache
-      uses: actions/cache@v4
-      with:
-        path: ${{runner.workspace}}
-        key: workspace-micropython-${{env.MICROPYTHON_VERSION}}-${{env.WORKFLOW_VERSION}}
-        restore-keys: |
-          workspace-micropython-${{env.MICROPYTHON_VERSION}}-${{env.WORKFLOW_VERSION}}
-
-    # Check out MicroPython
-    - name: Checkout MicroPython
-      if: steps.cache.outputs.cache-hit != 'true'
-      uses: actions/checkout@v4
-      with:
-        repository: micropython/micropython
-        ref: ${{env.MICROPYTHON_VERSION}}
-        submodules: false  # MicroPython submodules are hideously broken
-        path: micropython
-
-    - name: Fetch Pico submodules
-      if: steps.cache.outputs.cache-hit != 'true'
-      shell: bash
-      working-directory: micropython
-      run: |
-        git submodule update --init lib/pico-sdk
-        git submodule update --init lib/cyw43-driver
-        git submodule update --init lib/lwip
-        git submodule update --init lib/mbedtls
-        git submodule update --init lib/micropython-lib
-        git submodule update --init lib/tinyusb
-        git submodule update --init lib/btstack
-
-    - name: Build mpy-cross
-      if: steps.cache.outputs.cache-hit != 'true'
-      shell: bash
-      working-directory: micropython/mpy-cross
-      run: make
-
   build:
-    needs: deps
-    name: Build ${{matrix.name}}
-    runs-on: ubuntu-20.04
+    name: MicroPython ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    continue-on-error: true
     strategy:
       matrix:
         include:
-          - name: Badger 2040
-            shortname: badger2040
-            board: PIMORONI_BADGER2040
-          - name: Badger 2040 W
-            shortname: badger2040w
-            board: PIMORONI_BADGER2040W
+        - name: badger2040
+        - name: badger2040w
 
     env:
-      RELEASE_FILE: pimoroni-${{matrix.shortname}}-${{github.event.release.tag_name || github.sha}}-micropython.uf2
-      RELEASE_FILE_WITH_OS: pimoroni-${{matrix.shortname}}-${{github.event.release.tag_name || github.sha}}-micropython-with-badger-os.uf2
-      FIRMWARE_DIR: "$GITHUB_WORKSPACE/badger2040/firmware"
-      BOARD_DIR: "$GITHUB_WORKSPACE/badger2040/firmware/${{matrix.board}}"
-      BADGER_OS_DIR: "$GITHUB_WORKSPACE/badger2040/badger_os"
+      # MicroPython version will be contained in github.event.release.tag_name for releases
+      CI_RELEASE_FILENAME: ${{ matrix.name }}-${{ github.event.release.tag_name || github.sha }}-micropython
+      CI_PROJECT_ROOT: ${{ github.workspace }}/src-${{ github.sha }}
+      CI_BUILD_ROOT: ${{ github.workspace }}
+      CI_USE_ENV: 1
 
     steps:
-    - name: Compiler Cache
+    - name: Compiler Cache Fixup
+      run: |
+        mkdir -p /home/runner/.ccache
+  
+    - name: "CCache: Restore saved cache"
       uses: actions/cache@v4
       with:
         path: /home/runner/.ccache
-        key: ccache-micropython-${{matrix.shortname}}-${{github.ref}}-${{github.sha}}
+        key: ccache-micropython-${{ matrix.name }}-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
-          ccache-micropython-${{matrix.shortname}}-${{github.ref}}
-          ccache-micropython-${{matrix.shortname}}-
+          ccache-micropython-${{ matrix.name }}-${{ github.ref }}
+          ccache-micropython-${{ matrix.name }}-
 
-    - name: Workspace Cache
-      uses: actions/cache@v4
-      with:
-        path: ${{runner.workspace}}
-        key: workspace-micropython-${{env.MICROPYTHON_VERSION}}-${{env.WORKFLOW_VERSION}}
-        restore-keys: |
-          workspace-micropython-${{env.MICROPYTHON_VERSION}}-${{env.WORKFLOW_VERSION}}
-
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-        path: badger2040
-
-    # Check out Pimoroni Pico
-    - uses: actions/checkout@v4
-      with:
-        repository: pimoroni/pimoroni-pico
-        ref: ${{env.PIMORONI_PICO_VERSION}}
-        submodules: true
-        path: pimoroni-pico
-
-    - name: "Py_Decl: Checkout py_decl"
+    - name: "Checkout Project"
       uses: actions/checkout@v4
       with:
-        repository: gadgetoid/py_decl
-        ref: v0.0.1
-        path: py_decl
+        submodules: true
+        path: ${{ env.CI_PROJECT_ROOT }}
 
-    # Check out dir2u2f
-    - uses: actions/checkout@v4
+    - name: "Install Arm GNU Toolchain (arm-none-eabi-gcc)"
+      uses: carlosperate/arm-none-eabi-gcc-action@v1
       with:
-        repository: gadgetoid/dir2uf2
-        ref: v0.0.5
-        path: dir2uf2
+        release: '14.2.Rel1'
 
-    # HACK: Patch startup overclock into Pico SDK
-    - name: "HACK: Startup Overclock Patch"
-      shell: bash
-      working-directory: micropython/lib/pico-sdk
-      run: |
-        git apply "${{env.FIRMWARE_DIR}}/startup_overclock.patch"
-
-    - name: "HACK: MicroPython out of tree board pins.csv fix"
-      shell: bash
-      working-directory: micropython
-      run: |
-        git apply "${{env.FIRMWARE_DIR}}/932f76c6ba64c5a3e68de3324556d9979f09303b.patch"
-
-    # Install apt packages
-    - name: Install CCache & Compiler
-      shell: bash
-      run:
-        sudo apt update && sudo apt install ccache gcc-arm-none-eabi
-
-    # Build firmware
-    - name: Configure MicroPython
-      shell: bash
-      working-directory: micropython/ports/rp2
-      run: |
-        cmake -S . -B build -DPICO_BUILD_DOCS=0 -DUSER_C_MODULES=${{env.BOARD_DIR}}/micropython.cmake -DMICROPY_BOARD_DIR=${{env.BOARD_DIR}} -DMICROPY_BOARD=${{env.BOARD}} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-
-    - name: Build MicroPython
-      shell: bash
-      working-directory: micropython/ports/rp2
-      run: |
-        ccache --zero-stats || true
-        cmake --build build -j 2
-        ccache --show-stats || true
-
-    - name: Rename .uf2 for artifact
-      shell: bash
-      working-directory: micropython/ports/rp2/build
-      run: |
-        cp firmware.uf2 ${{env.RELEASE_FILE}}
-
-    - name: "Py_Decl: Verify UF2"
+    - name: "Prepare tools & dependencies"
       shell: bash
       run: |
-        python3 py_decl/py_decl.py --to-json --verify micropython/ports/rp2/build/${{ env.RELEASE_FILE }}
+        source $CI_PROJECT_ROOT/ci/micropython.sh
+        mkdir -p $CI_BUILD_ROOT
+        ci_apt_install_build_deps
+        ci_prepare_all
 
-    - name: Append Filesystem
+    - name: "MicroPython: Configure"
       shell: bash
       run: |
-        python3 -m pip install littlefs-python==0.12.0
-        ./dir2uf2/dir2uf2 --fs-compact --append-to micropython/ports/rp2/build/${{env.RELEASE_FILE}} --manifest ${{env.BOARD_DIR}}/uf2-manifest.txt --filename with-badger-os.uf2 ${{env.BADGER_OS_DIR}}/
+        source $CI_PROJECT_ROOT/ci/micropython.sh
+        micropython_version
+        ci_cmake_configure ${{ matrix.name }}
 
-    - name: Store .uf2 as artifact
+    - name: "MicroPython: Build"
+      shell: bash
+      run: |
+        source $CI_PROJECT_ROOT/ci/micropython.sh
+        ci_cmake_build ${{ matrix.name }}
+
+    - name: "Artifacts: Upload .uf2"
       uses: actions/upload-artifact@v4
       with:
-        name: ${{env.RELEASE_FILE}}
-        path: micropython/ports/rp2/build/${{env.RELEASE_FILE}}
-
-    - name: Store .uf2 + Badger OS as artifact
+        name: ${{ env.CI_RELEASE_FILENAME }}.uf2
+        path: ${{ env.CI_BUILD_ROOT }}/${{ env.CI_RELEASE_FILENAME }}.uf2
+        
+    - name: "Artifacts: Upload .uf2 (With Filesystem)"
       uses: actions/upload-artifact@v4
       with:
-        name: ${{env.RELEASE_FILE_WITH_OS}}
-        path: ${{env.RELEASE_FILE_WITH_OS}}
+        name: ${{ env.CI_RELEASE_FILENAME }}-with-filesystem.uf2
+        path: ${{ env.CI_BUILD_ROOT }}/${{ env.CI_RELEASE_FILENAME }}-with-filesystem.uf2
 
-    - name: Upload .uf2
+    - name: "Release: Upload .uf2"
       if: github.event_name == 'release'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      uses: softprops/action-gh-release@v2
       with:
-        asset_path: micropython/ports/rp2/build/${{env.RELEASE_FILE}}
-        upload_url: ${{github.event.release.upload_url}}
-        asset_name: ${{env.RELEASE_FILE}}
-        asset_content_type: application/octet-stream
+        files: ${{ env.CI_BUILD_ROOT }}/${{ env.CI_RELEASE_FILENAME }}.uf2
 
-    - name: Upload .uf2 + Badger OS
+    - name: "Release: Upload .uf2 (With Filesystem)"
       if: github.event_name == 'release'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      uses: softprops/action-gh-release@v2
       with:
-        asset_path: ${{env.RELEASE_FILE_WITH_OS}}
-        upload_url: ${{github.event.release.upload_url}}
-        asset_name: ${{env.RELEASE_FILE_WITH_OS}}
-        asset_content_type: application/octet-stream
+        files: ${{ env.CI_BUILD_ROOT }}/${{ env.CI_RELEASE_FILENAME }}-with-filesystem.uf2

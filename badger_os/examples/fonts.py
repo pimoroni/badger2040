@@ -82,7 +82,7 @@ def draw_fonts():
     y = 0 if name.startswith("bitmap") else 10
 
     display.set_pen(0)
-    for line in ("The quick", "brown fox", "jumps over", "the lazy dog.", "0123456789", "!\"£$%^&*()"):
+    for line in ("The quick", "brown fox", "jumps over", "the lazy dog.", "0123456789", '!"£$%^&*()'):
         display.text(line, TEXT_INDENT, y, WIDTH, size)
         y += 22
 

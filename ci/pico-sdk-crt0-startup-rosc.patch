@@ -1,0 +1,29 @@
+diff --git a/src/rp2_common/pico_crt0/crt0.S b/src/rp2_common/pico_crt0/crt0.S
+index e408b7d..2b986a5 100644
+--- a/src/rp2_common/pico_crt0/crt0.S
++++ b/src/rp2_common/pico_crt0/crt0.S
+@@ -10,6 +10,7 @@
+ #include "pico/platform/cpu_regs.h"
+ 
+ #include "hardware/regs/addressmap.h"
++#include "hardware/regs/rosc.h"
+ #include "hardware/regs/sio.h"
+ #include "pico/binary_info/defs.h"
+ #include "boot/picobin.h"
+@@ -414,6 +415,16 @@ _call_xip_setup:
+     add sp, #256
+ #endif
+ 
++    // Increase ROSC frequency to ~48MHz (range 14.4 - 96)
++    // Speeds up memory zero init and preinit phases.
++    ldr r0, =(ROSC_BASE + ROSC_DIV_OFFSET)
++#if PICO_RP2040
++    ldr r1, =0xaa2
++#else
++    ldr r1, =0xaa02
++#endif
++    str r1, [r0]
++
+     // In a NO_FLASH binary, don't perform .data etc copy, since it's loaded
+     // in-place by the SRAM load. Still need to clear .bss
+ #if !PICO_NO_FLASH

@@ -20,7 +20,7 @@ png = pngdec.PNG(display.display)
 
 # Load images
 try:
-    IMAGES = [f for f in os.listdir("/images") if f.endswith(".jpg") or f.endswith(".png")]
+    IMAGES = [f for f in os.listdir("/images") if f.endswith((".jpg", ".png"))]
     TOTAL_IMAGES = len(IMAGES)
 except OSError:
     pass
