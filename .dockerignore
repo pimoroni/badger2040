@@ -1,0 +1,4 @@
+dist/
+*.uf2
+.git
+badger_os/__pycache__/

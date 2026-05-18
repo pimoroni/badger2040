@@ -1,0 +1,21 @@
+services:
+  build:
+    build:
+      context: .
+      args:
+        MICROPYTHON_VERSION: v1.27.0
+        PIMORONI_PICO_VERSION: v1.27.0
+        DIR2UF2_VERSION: v0.1.0
+        PY_DECL_VERSION: v0.0.5
+    image: badger2040-build:latest
+    volumes:
+      - .:/workspace/badger2040
+      - ccache:/root/.ccache
+    environment:
+      CCACHE_DIR: /root/.ccache
+      # To build a single board, pass BOARD via the environment or command line:
+      #   docker compose run --rm -e BOARD=PIMORONI_BADGER2040W build
+      # Leave unset to build both boards.
+
+volumes:
+  ccache:

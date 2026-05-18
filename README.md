@@ -12,6 +12,7 @@ This repository contains firmware, examples and documentation for Badger 2040 an
 - [Installation](#installation)
   - [Badger 2040](#badger-2040)
   - [Badger 2040 W](#badger-2040-w)
+- [Building Locally](#building-locally)
 - [Useful Links](#useful-links)
 - [Other Resources](#other-resources)
   - [Cases and Enclosures](#cases-and-enclosures)
@@ -58,6 +59,28 @@ The regular builds just include the firmware, and leave your files alone:
 3. Drag and drop one of the `badger2040w` .uf2 files to the "RPI-RP2" drive that appears.
 
 4. Your device should reset and, if you used a `with-badger-os` variant, show the Badger OS Launcher.
+
+## Building Locally
+
+Firmware can be built locally without pushing to GitHub using Docker.
+
+**Prerequisites:** `docker` and `docker compose`
+
+Build the image once (takes ~15 minutes; cached for subsequent builds):
+
+```bash
+make image
+```
+
+Then build firmware:
+
+```bash
+make build      # both boards
+make build-w    # Badger 2040 W only
+make build-std  # Badger 2040 (non-WiFi) only
+```
+
+Output `.uf2` files land in `dist/`.
 
 ## Useful Links
 

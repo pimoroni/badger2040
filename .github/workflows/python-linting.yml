@@ -7,24 +7,28 @@ on:
 jobs:
   build:
     name: Python Linting
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
 
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
     - name: Install Python Deps
-      run: python3 -m pip install flake8
+      run: python3 -m pip install ruff
 
     - name: Lint badger_os
       shell: bash
       run: |
-        python3 -m flake8 --show-source --ignore E501 badger_os
+        python3 -m ruff check --select E,F,W --ignore E501 badger_os
 
     - name: Lint Badger 2040 W Libs
       shell: bash
       run: |
-        python3 -m flake8 --show-source --ignore E501 firmware/PIMORONI_BADGER2040W/lib
+        python3 -m ruff check --select E,F,W --ignore E501 firmware/PIMORONI_BADGER2040W/lib
 
     - name: Lint Badger 2040 Libs
       shell: bash
       run: |
-        python3 -m flake8 --show-source --ignore E501 firmware/PIMORONI_BADGER2040/lib
+        python3 -m ruff check --select E,F,W --ignore E501 firmware/PIMORONI_BADGER2040/lib

@@ -1,0 +1,3 @@
+dist/
+*.uf2
+badger_os/__pycache__/
